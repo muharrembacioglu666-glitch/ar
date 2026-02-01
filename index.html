@@ -3,44 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AR Projesi v1.7.0 - Final Fix</title>
+    <title>AR Projesi v1.8.0 - Universal</title>
     
-    <!-- Stabil kütüphaneler -->
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <style>
-        body { margin: 0; overflow: hidden; background-color: #000; }
+        body { margin: 0; overflow: hidden; background-color: #000; font-family: sans-serif; }
         
-        /* UI Katmanı - Kameranın önünde kalması için */
+        /* UI Katmanı */
         #ui-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 9999; pointer-events: none; font-family: sans-serif;
+            z-index: 999; pointer-events: none;
         }
         #ui-layer * { pointer-events: auto; }
 
         .version-control {
             position: absolute; right: 15px; top: 15px;
-            display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
         }
 
         .ver-badge {
-            background: rgba(0, 255, 153, 0.2); color: #00ff99;
-            padding: 5px 12px; border-radius: 15px; border: 1px solid #00ff99;
-            font-size: 0.7rem; backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.7); color: #38bdf8;
+            padding: 5px 12px; border-radius: 15px; border: 1px solid #38bdf8;
+            font-size: 0.7rem; backdrop-filter: blur(8px);
         }
 
         .log-btn {
-            width: 45px; height: 45px; border-radius: 50%;
-            background: #00ff99; color: #000; border: none;
-            cursor: pointer; font-size: 1.2rem; box-shadow: 0 0 15px rgba(0, 255, 153, 0.4);
+            width: 40px; height: 40px; border-radius: 50%;
+            background: #2563eb; color: white; border: none;
+            cursor: pointer; font-size: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
         .modal {
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 80%; max-width: 350px; background: rgba(10, 20, 30, 0.95);
-            padding: 20px; border-radius: 15px; border: 1px solid #00ff99; color: white;
+            width: 85%; max-width: 350px; background: rgba(15, 23, 42, 0.95);
+            padding: 20px; border-radius: 20px; border: 1px solid #38bdf8; color: white;
+        }
+
+        /* Bilgisayarda videonun garip görünmesini engellemek için */
+        video {
+            object-fit: cover !important;
+            width: 100% !important;
+            height: 100% !important;
         }
     </style>
 </head>
@@ -49,43 +55,44 @@
 
     <div id="ui-layer">
         <div class="version-control">
-            <div class="ver-badge" id="current-ver">v1.7.0</div>
+            <div class="ver-badge" id="current-ver">v1.8.0</div>
             <button class="log-btn" onclick="toggleLogs()"><i class="fas fa-history"></i></button>
         </div>
 
         <div id="logModal" class="modal">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="margin:0">Log v1.7.0</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="margin:0">Sistem Logları</h3>
                 <span style="cursor:pointer; font-size: 1.5rem;" onclick="toggleLogs()">&times;</span>
             </div>
-            <div id="log-content" style="font-size: 0.8rem; line-height: 1.4;">
-                • Siyah ekran hatası için videoTexture aktif edildi.<br>
-                • CSS kısıtlamaları kaldırıldı.<br>
-                • Zoom sorunu için matrix tespiti optimize edildi.
+            <div style="max-height: 200px; overflow-y: auto; font-size: 0.75rem;">
+                <p>• v1.8.0: Masaüstü ve mobil için hibrit görüntüleme modu eklendi.</p>
+                <p>• v1.7.0: Mobil zoom sorunu giderildi.</p>
+                <p>• v1.6.0: Siyah ekran hatası onarıldı.</p>
             </div>
         </div>
     </div>
 
     <!-- AR SAHNESİ -->
-    <!-- videoTexture: true -> Görüntüyü siyah ekran yapmadan sahneye gömer -->
+    <!-- sourceWidth/Height değerlerini 640x480 (standart) yapıp CSS ile yayıyoruz -->
     <a-scene 
         embedded 
-        arjs="sourceType: webcam; debugUIEnabled: false; videoTexture: true;"
+        arjs="sourceType: webcam; 
+              debugUIEnabled: false; 
+              sourceWidth:640; sourceHeight:480; 
+              displayWidth:640; displayHeight:480;"
         vr-mode-ui="enabled: false">
         
         <a-marker type="pattern" url="qr/pattern-ar_projesi.patt">
             <a-box 
                 position="0 0.5 0" 
                 scale="0.5 0.5 0.5"
-                material="color: #00ff99; opacity: 0.8;"
+                material="color: #38bdf8; opacity: 0.8;"
                 animation="property: rotation; to: 0 360 0; loop: true; dur: 4000">
             </a-box>
-            <a-text value="SISTEM ONARILDI" position="0 1 0" align="center" color="#00ff99" scale="0.4 0.4 0.4"></a-text>
+            <a-text value="STABIL MOD" position="0 1 0" align="center" color="#38bdf8" scale="0.4 0.4 0.4"></a-text>
         </a-marker>
 
-        <!-- Kamera ayarı: fov değeri zoom miktarını belirler (60-80 arası geniş açıdır) -->
-        <a-entity camera fov="80"></a-entity>
-        
+        <a-entity camera></a-entity>
     </a-scene>
 
     <script>
@@ -93,12 +100,18 @@
             const m = document.getElementById('logModal');
             m.style.display = (m.style.display === "block") ? "none" : "block";
         }
-        
-        // Tarayıcı zoomunu engellemek için dokunmatik kontrol
-        document.addEventListener('touchstart', function (event) {
-            if (event.touches.length > 1) {
-                event.preventDefault();
-            }
+
+        // Bilgisayarda görüntü bozulursa sahneleri yeniden boyutlandır
+        window.addEventListener('resize', function () {
+            setTimeout(() => {
+                const scene = document.querySelector('a-scene');
+                if (scene) scene.emit('resize');
+            }, 500);
+        });
+
+        // Mobil cihazlarda zoomu engellemek için (v1.7'den miras)
+        document.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 1) e.preventDefault();
         }, { passive: false });
     </script>
 </body>
