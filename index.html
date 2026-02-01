@@ -3,27 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Deneyimi & Gelişim Logları</title>
+    <title>AR Projesi - Özel Marker Sürümü</title>
     
-    <!-- AR ve 3D Kütüphaneleri -->
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    <!-- İkonlar -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <style>
-        /* AR Sahnesi Üzerine Binecek UI Katmanı */
+        /* UI Katmanı Tasarımı */
         #ui-layer {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10; /* AR kamerasının üstünde durması için */
-            pointer-events: none; /* Tıklamaların arka plana geçmesine izin verir */
-            font-family: 'Segoe UI', Tahoma, sans-serif;
+            z-index: 10;
+            pointer-events: none;
+            font-family: 'Segoe UI', sans-serif;
         }
+        #ui-layer * { pointer-events: auto; }
 
-        #ui-layer * { pointer-events: auto; } /* Butonlar tıklanabilir olsun */
-
-        /* Versiyon Paneli (Sağ Orta) */
         .version-control {
             position: absolute;
             right: 20px;
@@ -37,165 +33,98 @@
 
         .ver-badge {
             background: rgba(15, 23, 42, 0.85);
-            color: #38bdf8;
+            color: #34d399; /* Yeni versiyon için yeşil tonu */
             padding: 10px 20px;
             border-radius: 30px;
-            border: 1px solid #38bdf8;
+            border: 1px solid #34d399;
             font-weight: bold;
             backdrop-filter: blur(10px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
         .log-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #2563eb;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+            width: 50px; height: 50px; border-radius: 50%;
+            background: #059669; color: white; border: none;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; box-shadow: 0 4px 15px rgba(5, 150, 105, 0.4);
         }
 
-        .log-btn:hover { transform: scale(1.1) rotate(15deg); background: #7c3aed; }
-
-        /* Modal (Günlük Log Tablosu) */
+        /* Modal ve Tablo Stilleri */
         .modal {
-            display: none;
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
+            display: none; position: fixed;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 90%; max-width: 600px;
-            background: rgba(30, 41, 59, 0.95);
-            backdrop-filter: blur(15px);
-            padding: 2rem;
-            border-radius: 1.5rem;
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
-            z-index: 100;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 2rem; border-radius: 1.5rem; border: 1px solid #34d399;
+            color: white; z-index: 100;
         }
-
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .close-btn { cursor: pointer; font-size: 1.5rem; color: #94a3b8; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { text-align: left; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem; }
-        th { color: #38bdf8; text-transform: uppercase; font-size: 0.75rem; }
-        .ver-tag { background: #38bdf8; color: #0f172a; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
-
-        /* AR Talimat Yazısı */
-        .ar-instruction {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.6);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            white-space: nowrap;
-        }
+        .ver-tag { background: #34d399; color: #0f172a; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
     </style>
 </head>
 <body style="margin: 0; overflow: hidden;">
 
-    <!-- UI KATMANI -->
     <div id="ui-layer">
-        <!-- Sağdaki Versiyon Paneli -->
         <div class="version-control">
-            <div class="ver-badge" id="current-ver">v1.2.0</div>
-            <button class="log-btn" onclick="toggleLogs()" title="Günlük Gelişim Logları">
-                <i class="fas fa-list-ul"></i>
-            </button>
+            <div class="ver-badge" id="current-ver">v1.3.0</div>
+            <button class="log-btn" onclick="toggleLogs()"><i class="fas fa-history"></i></button>
         </div>
 
-        <!-- Alt Bilgi -->
-        <div class="ar-instruction">
-            <i class="fas fa-camera"></i> Kamerayı 'Hiro' Marker'ına tutun.
-        </div>
-
-        <!-- Log Modal -->
         <div id="logModal" class="modal">
-            <div class="modal-header">
-                <h3><i class="fas fa-history"></i> Günlük Gelişim Logları</h3>
-                <span class="close-btn" onclick="toggleLogs()">&times;</span>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3><i class="fas fa-terminal"></i> Geliştirme Logları</h3>
+                <span style="cursor:pointer" onclick="toggleLogs()">&times;</span>
             </div>
-            <div style="max-height: 400px; overflow-y: auto;">
+            <div style="max-height: 300px; overflow-y: auto;">
                 <table>
                     <thead>
-                        <tr>
-                            <th>Tarih</th>
-                            <th>Sürüm</th>
-                            <th>İşlem / Günlük Log</th>
-                        </tr>
+                        <tr><th>Tarih</th><th>Sürüm</th><th>İşlem</th></tr>
                     </thead>
-                    <tbody id="log-table-body">
-                        <!-- Veriler JS ile buraya gelecek -->
-                    </tbody>
+                    <tbody id="log-table-body"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- AR SAHNESİ -->
+    <!-- AR Sahnesi -->
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
-        <!-- Hiro Marker -->
-        <a-marker preset="hiro">
-            <!-- Sanal Küpümüz -->
+        
+        <!-- ÖNEMLİ: Kendi .patt dosyanı burada tanımlıyoruz -->
+        <a-marker type="pattern" url="qr/pattern-ar_projesi.patt">
+            <!-- Görünecek Küp -->
             <a-box 
                 position="0 0.5 0" 
-                material="color: #38bdf8; opacity: 0.8; transparent: true;" 
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 4000"
-                scale="0.8 0.8 0.8">
+                material="src: https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/bricks/textured_brick.jpg; opacity: 0.9;"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 5000">
             </a-box>
-            <!-- Küpün üstünde dönen bir halka (estetik için) -->
-            <a-torus-knot 
-                radius="0.3" radius-tubular="0.02"
-                animation="property: rotation; to: 360 0 0; loop: true; dur: 3000"
-                material="color: #7c3aed;">
-            </a-torus-knot>
+            <a-text value="Proje Aktif" position="0 1.2 0" align="center" color="#34d399"></a-text>
         </a-marker>
 
         <a-entity camera></a-entity>
     </a-scene>
 
     <script>
-        // GÜNLÜK LOG VERİLERİ (Her gün buraya yeni satır ekle)
+        // GÜNLÜK LOGLAR
         const dailyLogs = [
-            { date: "01.06.2024", ver: "1.2.0", log: "AR motoru entegre edildi. Sağ panel günlük log sistemi eklendi." },
-            { date: "31.05.2024", ver: "1.1.0", log: "Versiyon takip sistemi ve modal arayüzü tasarlandı." },
-            { date: "30.05.2024", ver: "1.0.0", log: "Proje başlangıcı. İlk index.html tasarımı yapıldı." }
+            { date: "01.02.2024", ver: "1.3.0", log: "Özel marker (.patt) entegre edildi. Küp dokusu güncellendi." },
+            { date: "01.02.2024", ver: "1.2.0", log: "AR motoru ve log paneli eklendi." },
+            { date: "31.01.2024", ver: "1.0.0", log: "Temel yapı kuruldu." }
         ];
 
         function initLogs() {
             const tableBody = document.getElementById('log-table-body');
-            const currentVerBadge = document.getElementById('current-ver');
-            
-            // En son versiyonu etikete yaz
-            currentVerBadge.innerText = "v" + dailyLogs[0].ver;
-
+            document.getElementById('current-ver').innerText = "v" + dailyLogs[0].ver;
             dailyLogs.forEach(entry => {
-                const row = `<tr>
-                    <td>${entry.date}</td>
-                    <td><span class="ver-tag">${entry.ver}</span></td>
-                    <td>${entry.log}</td>
-                </tr>`;
-                tableBody.innerHTML += row;
+                tableBody.innerHTML += `<tr><td>${entry.date}</td><td><span class="ver-tag">${entry.ver}</span></td><td>${entry.log}</td></tr>`;
             });
         }
 
         function toggleLogs() {
-            const modal = document.getElementById('logModal');
-            modal.style.display = (modal.style.display === "block") ? "none" : "block";
+            const m = document.getElementById('logModal');
+            m.style.display = (m.style.display === "block") ? "none" : "block";
         }
 
-        // Başlat
         initLogs();
     </script>
 </body>
