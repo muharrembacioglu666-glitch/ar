@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AR Projesi - Mobile Fix v1.4.0</title>
+    <title>AR Projesi - Sticky v1.5.0</title>
     
-    <!-- Daha stabil kütüphane versiyonları -->
+    <!-- Kütüphaneler -->
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -15,69 +15,99 @@
         
         /* UI Katmanı */
         #ui-layer {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 999;
-            pointer-events: none;
-            font-family: sans-serif;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 999; pointer-events: none; font-family: sans-serif;
         }
         #ui-layer * { pointer-events: auto; }
 
         .version-control {
-            position: absolute;
-            right: 15px; top: 50%;
-            transform: translateY(-50%);
-            display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+            position: absolute; right: 15px; top: 50%;
+            transform: translateY(-50%); display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
         }
 
         .ver-badge {
-            background: rgba(0, 0, 0, 0.7);
-            color: #00ffcc;
-            padding: 8px 15px; border-radius: 20px;
-            border: 1px solid #00ffcc; font-size: 0.8rem;
-            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.7); color: #f472b6; /* Pembe Tonu */
+            padding: 8px 15px; border-radius: 20px; border: 1px solid #f472b6;
+            font-size: 0.8rem; backdrop-filter: blur(5px);
         }
 
         .log-btn {
             width: 45px; height: 45px; border-radius: 50%;
-            background: #00ffcc; color: #000; border: none;
-            font-size: 1.2rem; box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+            background: #f472b6; color: white; border: none; font-size: 1.2rem;
+            box-shadow: 0 0 15px rgba(244, 114, 182, 0.5); cursor: pointer;
         }
 
-        /* Modal */
         .modal {
-            display: none; position: fixed;
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 85%; max-width: 400px; background: rgba(0,0,0,0.9);
-            padding: 20px; border-radius: 15px; border: 1px solid #00ffcc;
-            color: white;
+            padding: 20px; border-radius: 15px; border: 1px solid #f472b6; color: white;
         }
 
         table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
         th, td { text-align: left; padding: 10px; border-bottom: 1px solid #333; }
-        .ver-tag { color: #00ffcc; font-weight: bold; }
+        .ver-tag { color: #f472b6; font-weight: bold; }
         
-        /* Kamera İzin Mesajı */
         #cam-check {
             position: fixed; bottom: 20px; width: 100%; text-align: center;
             color: white; font-size: 0.7rem; background: rgba(0,0,0,0.5); z-index: 1000;
         }
     </style>
+
+    <script>
+        // ÖZEL BİLEŞEN: Marker bulunduğunda nesneyi sahneye kilitler
+        AFRAME.registerComponent('lock-on-found', {
+            init: function () {
+                const marker = this.el;
+                const objectToLock = document.getElementById('ar-object-group');
+                const scene = document.querySelector('a-scene');
+                let isLocked = false;
+
+                marker.addEventListener('markerFound', () => {
+                    if (isLocked) return; // Zaten kilitlendiyse tekrar yapma
+
+                    // 1. Nesnenin dünya üzerindeki pozisyonunu ve duruşunu hesapla
+                    var position = new THREE.Vector3();
+                    var quaternion = new THREE.Quaternion();
+                    var scale = new THREE.Vector3();
+
+                    objectToLock.object3D.getWorldPosition(position);
+                    objectToLock.object3D.getWorldQuaternion(quaternion);
+                    objectToLock.object3D.getWorldScale(scale);
+
+                    // 2. Nesneyi Marker'ın içinden çıkar, Sahneye (Scene) ekle
+                    // Bu işlem nesneyi marker'dan bağımsız kılar
+                    scene.appendChild(objectToLock);
+
+                    // 3. Hesapladığımız pozisyonu nesneye uygula
+                    objectToLock.object3D.position.copy(position);
+                    objectToLock.object3D.quaternion.copy(quaternion);
+                    objectToLock.object3D.scale.copy(scale);
+
+                    isLocked = true;
+                    
+                    // Kullanıcıya bilgi ver
+                    const infoText = document.getElementById('info-text');
+                    infoText.setAttribute('value', 'NESNE KILITLENDI');
+                    infoText.setAttribute('color', '#f472b6');
+                });
+            }
+        });
+    </script>
 </head>
 
 <body>
 
     <div id="ui-layer">
-        <div id="cam-check">Kamera yükleniyor... Lütfen izin verin.</div>
+        <div id="cam-check">Kamera yükleniyor... Marker'ı gösterin.</div>
         
         <div class="version-control">
-            <div class="ver-badge" id="current-ver">v1.4.0</div>
-            <button class="log-btn" onclick="toggleLogs()"><i class="fas fa-list-ul"></i></button>
+            <div class="ver-badge" id="current-ver">v1.5.0</div>
+            <button class="log-btn" onclick="toggleLogs()"><i class="fas fa-thumbtack"></i></button>
         </div>
 
         <div id="logModal" class="modal">
             <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                <h3 style="margin:0">Log Kayıtları</h3>
+                <h3 style="margin:0">Versiyon Geçmişi</h3>
                 <span style="cursor:pointer" onclick="toggleLogs()">✕</span>
             </div>
             <div style="max-height: 250px; overflow-y: auto;">
@@ -95,16 +125,21 @@
         arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix;"
         vr-mode-ui="enabled: false">
         
-        <!-- ÖZEL MARKER: pattern-ar_projesi.patt -->
-        <a-marker type="pattern" url="qr/pattern-ar_projesi.patt">
-            <!-- Görünecek Küp -->
-            <a-box 
-                position="0 0.5 0" 
-                scale="0.7 0.7 0.7"
-                material="color: #00ffcc; opacity: 0.8; wireframe: false;"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 4000">
-            </a-box>
-            <a-text value="SISTEM ONLINE" position="0 1 0" align="center" color="#00ffcc" scale="0.5 0.5 0.5"></a-text>
+        <!-- Marker'a 'lock-on-found' özelliğini ekledik -->
+        <a-marker type="pattern" url="qr/pattern-ar_projesi.patt" lock-on-found>
+            
+            <!-- GRUP: Küp ve Yazıyı tek bir kutuda topladım (id="ar-object-group") -->
+            <!-- Bu grup marker görüldüğünde sahneye transfer edilecek -->
+            <a-entity id="ar-object-group">
+                <a-box 
+                    position="0 0.5 0" 
+                    scale="0.7 0.7 0.7"
+                    material="color: #f472b6; opacity: 0.9;"
+                    animation="property: rotation; to: 0 360 0; loop: true; dur: 4000">
+                </a-box>
+                <a-text id="info-text" value="TARANIYOR..." position="0 1.2 0" align="center" color="white" scale="0.6 0.6 0.6"></a-text>
+            </a-entity>
+
         </a-marker>
 
         <a-entity camera></a-entity>
@@ -112,6 +147,7 @@
 
     <script>
         const dailyLogs = [
+            { date: "02.02.2024", ver: "1.5.0", log: "Kalıcı Nesne (Sticky Mode) eklendi. Marker gidince nesne kaybolmaz." },
             { date: "01.02.2024", ver: "1.4.0", log: "Mobil uyumluluk fixleri uygulandı." },
             { date: "01.02.2024", ver: "1.3.0", log: "Özel .patt marker eklendi." }
         ];
@@ -129,7 +165,6 @@
             m.style.display = (m.style.display === "block") ? "none" : "block";
         }
 
-        // Kamera yüklendiğinde mesajı kapat
         window.addEventListener('camera-init', () => {
             document.getElementById('cam-check').style.display = 'none';
         });
