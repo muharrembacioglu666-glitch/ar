@@ -1,32 +1,160 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>AR Projesi - Fıstık Yeşili Küp</title>
-    <!-- A-Frame Kütüphanesi (3D nesneler için) -->
+    <title>AR Projesi - Fıstık Yeşili Küp v1.2.0</title>
+    <!-- A-Frame ve AR.js Kütüphaneleri -->
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <!-- AR.js Kütüphanesi (Kamera ve Marker takibi için) -->
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+
+    <!-- Stil (CSS) Ayarları -->
+    <style>
+      /* Sağ üst köşedeki sürüm bilgisi ve buton */
+      #version-container {
+        position: fixed; /* Ekran kaydırılsa bile sabit kalsın */
+        top: 15px;
+        right: 15px;
+        z-index: 1000; /* AR görüntüsünün en üstünde dursun */
+        font-family: Arial, sans-serif;
+        color: white;
+        background-color: rgba(0, 0, 0, 0.5); /* Okunabilirlik için yarı saydam siyah zemin */
+        padding: 8px 12px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* "i" Butonu Stili */
+      .info-btn {
+        width: 24px;
+        height: 24px;
+        background-color: #ffffff;
+        color: #333;
+        border-radius: 50%;
+        border: none;
+        font-weight: bold;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .info-btn:hover {
+        background-color: #ddd;
+      }
+
+      /* Açılır Pencere (Modal) Arkaplanı */
+      #modal-overlay {
+        display: none; /* Başlangıçta gizli */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      /* Açılır Pencere İçeriği */
+      #modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 400px;
+        font-family: Arial, sans-serif;
+        position: relative;
+      }
+
+      h2 { margin-top: 0; color: #333; }
+      
+      /* Sürüm Listesi */
+      ul { padding-left: 20px; }
+      li { margin-bottom: 10px; color: #555; }
+      
+      /* Son Sürüm Etiketi */
+      .latest-tag {
+        color: green;
+        font-weight: bold;
+        font-size: 0.8em;
+        margin-left: 5px;
+      }
+
+      /* Kapatma Butonu */
+      .close-btn {
+        background-color: #ff4d4d;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        float: right;
+        margin-top: 10px;
+      }
+    </style>
   </head>
   
   <body style="margin : 0px; overflow: hidden;">
+
+    <!-- 1. ARAYÜZ KATMANI (UI) -->
     
-    <!-- AR Sahnesini Başlat -->
+    <!-- Sağ Üst Köşe Sürüm Bilgisi -->
+    <div id="version-container">
+      <span>v1.2.0</span>
+      <button class="info-btn" onclick="openModal()">i</button>
+    </div>
+
+    <!-- Sürüm Geçmişi Penceresi (Modal) -->
+    <div id="modal-overlay">
+      <div id="modal-content">
+        <h2>Sürüm Geçmişi</h2>
+        <ul>
+          <li>
+            <strong>v1.2.0</strong> <span class="latest-tag">[SON SÜRÜM]</span><br>
+            - Arayüz eklendi, sürüm bilgisi sağ üste taşındı.<br>
+            - "i" butonu ile geçmiş görüntüleme özelliği geldi.
+          </li>
+          <li>
+            <strong>v1.1.0</strong><br>
+            - Küp rengi fıstık yeşiline (#93C572) güncellendi.
+          </li>
+          <li>
+            <strong>v1.0.0</strong><br>
+            - İlk proje oluşturuldu.<br>
+            - Marker tanıma sistemi eklendi.
+          </li>
+        </ul>
+        <button class="close-btn" onclick="closeModal()">Kapat</button>
+      </div>
+    </div>
+
+    <!-- 2. AR SAHNESİ -->
     <a-scene embedded arjs>
       
-      <!-- Marker Tanımlama -->
-      <!-- 'url' kısmına senin dosya yolunu yazdım: qr/pattern-ar_projesi.patt -->
+      <!-- Marker Tanımlama: qr/pattern-ar_projesi.patt -->
       <a-marker type="pattern" url="qr/pattern-ar_projesi.patt">
-        
         <!-- Fıstık Yeşili Küp -->
-        <!-- color: #93C572 (Fıstık Yeşili Hex Kodu) -->
-        <!-- position: 0 0.5 0 (Küpün yarısı gömülmesin diye hafif yukarı kaldırdık) -->
         <a-box position="0 0.5 0" material="color: #93C572; opacity: 1;"></a-box>
-        
       </a-marker>
       
-      <!-- Kamera -->
       <a-entity camera></a-entity>
-      
     </a-scene>
+
+    <!-- 3. JAVASCRIPT (Etkileşim Kodları) -->
+    <script>
+      // Pencereyi Açma Fonksiyonu
+      function openModal() {
+        document.getElementById('modal-overlay').style.display = 'flex';
+      }
+
+      // Pencereyi Kapatma Fonksiyonu
+      function closeModal() {
+        document.getElementById('modal-overlay').style.display = 'none';
+      }
+    </script>
+    
   </body>
 </html>
