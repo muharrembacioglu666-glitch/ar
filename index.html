@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Oyun Portalı v1.8.2</title>
+    <title>Oyun Portalı v1.8.3</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
 
@@ -216,7 +216,7 @@
             <span>Filmler</span>
         </div>
         <div class="version-wrapper" onclick="openChangelog()">
-            <div class="version-badge">v1.8.2 <span>ℹ</span></div>
+            <div class="version-badge">v1.8.3 <span>ℹ</span></div>
         </div>
     </header>
 
@@ -226,17 +226,18 @@
             <h3 style="margin-top:0">Sürüm Geçmişi</h3>
             
             <div class="changelog-item">
-                <div class="version-title">v1.8.2 (Güncel)</div>
+                <div class="version-title">v1.8.3 (Güncel)</div>
+                <ul class="change-list">
+                    <li>Yılan Oyunu: Yılana yön gösteren kafa ve gözler eklendi!</li>
+                    <li>Sürüm numarası v1.8.3'e yükseltildi.</li>
+                </ul>
+            </div>
+            <div class="changelog-item">
+                <div class="version-title">v1.8.2</div>
                 <ul class="change-list">
                     <li>Tetris bloklarının gelmeme sorunu düzeltildi.</li>
                     <li>Pac-Man'de hayalet sayısı 1'e indirildi.</li>
                     <li>Hayalet Yapay Zekası: Artık seni takip ediyor!</li>
-                </ul>
-            </div>
-            <div class="changelog-item">
-                <div class="version-title">v1.8.1</div>
-                <ul class="change-list">
-                    <li>Vektörel SVG ikonlar ve RGB dönen çerçeve eklendi.</li>
                 </ul>
             </div>
         </div>
@@ -250,7 +251,7 @@
                     <svg viewBox="0 0 24 24"><path d="M7 4v2a2 2 0 0 1-2 2H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 1 2 2v2" stroke="#ffcc00"></path><circle cx="8" cy="4" r="2" fill="#ffcc00" stroke="none"></circle></svg>
                 </div>
                 <div class="game-title">Yılan Oyunu</div>
-                <div class="game-desc">Google Snake tarzı damalı zemin.</div>
+                <div class="game-desc">Yeni: Gözlü kafa eklendi!</div>
             </div>
 
             <div class="game-card" onclick="startGame('tetris')">
@@ -315,7 +316,6 @@
             updateScore(0);
             if(gameInterval) clearInterval(gameInterval);
             
-            // Klavye olaylarını temizle ve yeniden bağla
             document.onkeydown = null;
             document.onkeydown = handleInput;
 
@@ -348,7 +348,6 @@
 
         function handleInput(e) {
             if(isGameOver) return;
-            // Scroll engelle
             if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.code)) e.preventDefault();
             
             if(activeGame === 'snake') handleSnakeInput(e);
@@ -356,7 +355,7 @@
             if(activeGame === 'pacman') handlePacmanInput(e);
         }
 
-        // ======================== YILAN (SNAKE) ========================
+        // ======================== YILAN (SNAKE) - KAFA EKLENDİ ========================
         let snake=[], apple={}, snakeDir={}, nextSnakeDir={};
         const sGrid=25, sCols=24, sRows=24;
 
@@ -389,33 +388,72 @@
                 score++; updateScore(score); apple = spawnApple();
             } else snake.pop();
 
-            // Çizim
+            // Çizim - Zemin
             for(let r=0; r<sRows; r++) {
                 for(let c=0; c<sCols; c++) {
                     ctx.fillStyle = (r+c)%2===0 ? "#aad751" : "#a2d149";
                     ctx.fillRect(c*sGrid, r*sGrid, sGrid, sGrid);
                 }
             }
+
+            // Elma
             ctx.fillStyle="#e7471d";
             ctx.beginPath(); ctx.arc(apple.x*sGrid+sGrid/2, apple.y*sGrid+sGrid/2, sGrid/2-2, 0, Math.PI*2); ctx.fill();
             
-            ctx.fillStyle="#4674E9";
-            snake.forEach(p => ctx.fillRect(p.x*sGrid+1, p.y*sGrid+1, sGrid-2, sGrid-2));
+            // Yılan Çizimi
+            snake.forEach((p, i) => {
+                // Gövde Rengi (Kafa daha parlak mavi)
+                ctx.fillStyle = (i === 0) ? "#4674E9" : "#315ecb";
+                ctx.fillRect(p.x*sGrid+1, p.y*sGrid+1, sGrid-2, sGrid-2);
+
+                // KAFAYA GÖZ EKLEME
+                if(i === 0) {
+                    ctx.fillStyle = "white";
+                    const eyeSize = 3;
+                    let eyeX1, eyeY1, eyeX2, eyeY2;
+
+                    // Göz konumlarını yılanın yönüne göre belirle
+                    if(snakeDir.x === 1) { // Sağ
+                        eyeX1 = eyeX2 = p.x*sGrid + 18;
+                        eyeY1 = p.y*sGrid + 6; eyeY2 = p.y*sGrid + 18;
+                    } else if(snakeDir.x === -1) { // Sol
+                        eyeX1 = eyeX2 = p.x*sGrid + 6;
+                        eyeY1 = p.y*sGrid + 6; eyeY2 = p.y*sGrid + 18;
+                    } else if(snakeDir.y === -1) { // Yukarı
+                        eyeY1 = eyeY2 = p.y*sGrid + 6;
+                        eyeX1 = p.x*sGrid + 6; eyeX2 = p.x*sGrid + 18;
+                    } else { // Aşağı
+                        eyeY1 = eyeY2 = p.y*sGrid + 18;
+                        eyeX1 = p.x*sGrid + 6; eyeX2 = p.x*sGrid + 18;
+                    }
+
+                    // Göz Akı
+                    ctx.beginPath();
+                    ctx.arc(eyeX1, eyeY1, eyeSize, 0, Math.PI*2);
+                    ctx.arc(eyeX2, eyeY2, eyeSize, 0, Math.PI*2);
+                    ctx.fill();
+
+                    // Göz Bebeği
+                    ctx.fillStyle = "black";
+                    ctx.beginPath();
+                    ctx.arc(eyeX1, eyeY1, 1.5, 0, Math.PI*2);
+                    ctx.arc(eyeX2, eyeY2, 1.5, 0, Math.PI*2);
+                    ctx.fill();
+                }
+            });
         }
 
-        // ======================== TETRIS (DÜZELTİLDİ) ========================
+        // ======================== TETRIS ========================
         const tRows=20, tCols=10, tSize=30;
         let board=[], currentPiece=null;
-        
-        // Parçalar (Matris ve Renk)
         const TETROMINOS = [
-            { matrix: [[1,1,1,1]], color: "cyan" }, // I
-            { matrix: [[1,1],[1,1]], color: "yellow" }, // O
-            { matrix: [[0,1,0],[1,1,1]], color: "purple" }, // T
-            { matrix: [[0,1,1],[1,1,0]], color: "green" }, // S
-            { matrix: [[1,1,0],[0,1,1]], color: "red" }, // Z
-            { matrix: [[1,0,0],[1,1,1]], color: "blue" }, // J
-            { matrix: [[0,0,1],[1,1,1]], color: "orange" } // L
+            { matrix: [[1,1,1,1]], color: "cyan" },
+            { matrix: [[1,1],[1,1]], color: "yellow" },
+            { matrix: [[0,1,0],[1,1,1]], color: "purple" },
+            { matrix: [[0,1,1],[1,1,0]], color: "green" },
+            { matrix: [[1,1,0],[0,1,1]], color: "red" },
+            { matrix: [[1,0,0],[1,1,1]], color: "blue" },
+            { matrix: [[0,0,1],[1,1,1]], color: "orange" }
         ];
 
         function initTetris() {
@@ -430,125 +468,65 @@
         function spawnTetrisPiece() {
             const r = Math.floor(Math.random() * TETROMINOS.length);
             const pieceData = TETROMINOS[r];
-            
-            // DERİN KOPYA (Deep Copy) - Çok Önemli!
-            // Matrisin referansını değil kopyasını alıyoruz, böylece döndürdüğümüzde ana dizi bozulmuyor.
             const matrixCopy = JSON.parse(JSON.stringify(pieceData.matrix));
-
-            currentPiece = {
-                matrix: matrixCopy,
-                color: pieceData.color,
-                x: 3,
-                y: 0 // En üstten başla
-            };
-
-            // Eğer doğduğu anda çarpıyorsa oyun bitti
-            if (checkCollision(0, 0, currentPiece.matrix)) {
-                showGameOver(`Tetris Bitti! Skor: ${score}`);
-            }
+            currentPiece = { matrix: matrixCopy, color: pieceData.color, x: 3, y: 0 };
+            if (checkCollision(0, 0, currentPiece.matrix)) showGameOver(`Tetris Bitti! Skor: ${score}`);
         }
 
-        function updateTetris() {
-            moveTetrisDown();
-            drawTetris();
-        }
+        function updateTetris() { moveTetrisDown(); drawTetris(); }
 
         function moveTetrisDown() {
             if(!currentPiece) return;
-            if(!checkCollision(0, 1, currentPiece.matrix)) {
-                currentPiece.y++;
-            } else {
-                lockTetrisPiece();
-                spawnTetrisPiece();
-            }
+            if(!checkCollision(0, 1, currentPiece.matrix)) { currentPiece.y++; } 
+            else { lockTetrisPiece(); spawnTetrisPiece(); }
         }
 
         function handleTetrisInput(e) {
             if(!currentPiece || isGameOver) return;
-            
-            if(e.key === 'ArrowLeft') {
-                if(!checkCollision(-1, 0, currentPiece.matrix)) currentPiece.x--;
-            } else if(e.key === 'ArrowRight') {
-                if(!checkCollision(1, 0, currentPiece.matrix)) currentPiece.x++;
-            } else if(e.key === 'ArrowDown') {
-                moveTetrisDown();
-            } else if(e.key === 'ArrowUp') {
-                // Döndürme
+            if(e.key === 'ArrowLeft') { if(!checkCollision(-1, 0, currentPiece.matrix)) currentPiece.x--; } 
+            else if(e.key === 'ArrowRight') { if(!checkCollision(1, 0, currentPiece.matrix)) currentPiece.x++; } 
+            else if(e.key === 'ArrowDown') { moveTetrisDown(); } 
+            else if(e.key === 'ArrowUp') {
                 const rotated = currentPiece.matrix[0].map((_, i) => currentPiece.matrix.map(row => row[i]).reverse());
-                if(!checkCollision(0, 0, rotated)) {
-                    currentPiece.matrix = rotated;
-                }
+                if(!checkCollision(0, 0, rotated)) currentPiece.matrix = rotated;
             }
             drawTetris();
         }
 
         function checkCollision(offX, offY, matrix) {
-            for(let r=0; r<matrix.length; r++){
-                for(let c=0; c<matrix[r].length; c++){
-                    if(matrix[r][c]){
-                        let newX = currentPiece.x + c + offX;
-                        let newY = currentPiece.y + r + offY;
-                        
-                        if(newX < 0 || newX >= tCols || newY >= tRows) return true; 
-                        if(newY < 0) continue; // Ekranın üstünde ise çarpma sayma
-                        if(board[newY][newX]) return true;
-                    }
-                }
+            for(let r=0; r<matrix.length; r++) for(let c=0; c<matrix[r].length; c++) if(matrix[r][c]){
+                let newX = currentPiece.x + c + offX;
+                let newY = currentPiece.y + r + offY;
+                if(newX < 0 || newX >= tCols || newY >= tRows) return true; 
+                if(newY >= 0 && board[newY][newX]) return true;
             }
             return false;
         }
 
         function lockTetrisPiece() {
-            currentPiece.matrix.forEach((row, r) => {
-                row.forEach((val, c) => {
-                    if(val) {
-                        let by = currentPiece.y + r;
-                        let bx = currentPiece.x + c;
-                        if(by >= 0) board[by][bx] = currentPiece.color;
-                    }
-                });
-            });
-
-            // Satır Silme
-            for(let r=0; r<tRows; r++) {
-                if(board[r].every(cell => cell !== null)) {
-                    board.splice(r, 1);
-                    board.unshift(Array(tCols).fill(null));
-                    score += 100;
-                    updateScore(score);
-                }
+            currentPiece.matrix.forEach((row, r) => row.forEach((val, c) => {
+                if(val && currentPiece.y + r >= 0) board[currentPiece.y+r][currentPiece.x+c] = currentPiece.color;
+            }));
+            for(let r=0; r<tRows; r++) if(board[r].every(cell => cell !== null)) {
+                board.splice(r, 1); board.unshift(Array(tCols).fill(null));
+                score += 100; updateScore(score);
             }
         }
 
         function drawTetris() {
             ctx.fillStyle = "#111"; ctx.fillRect(0,0,canvas.width, canvas.height);
-            
-            // Yerleşmiş Bloklar
-            for(let r=0; r<tRows; r++) {
-                for(let c=0; c<tCols; c++) {
-                    if(board[r][c]) drawBlock(c, r, board[r][c]);
-                }
-            }
-            
-            // Aktif Parça
-            if(currentPiece) {
-                currentPiece.matrix.forEach((row, r) => {
-                    row.forEach((val, c) => {
-                        if(val) drawBlock(currentPiece.x+c, currentPiece.y+r, currentPiece.color);
-                    });
-                });
-            }
+            for(let r=0; r<tRows; r++) for(let c=0; c<tCols; c++) if(board[r][c]) drawBlock(c, r, board[r][c]);
+            if(currentPiece) currentPiece.matrix.forEach((row, r) => row.forEach((val, c) => {
+                if(val) drawBlock(currentPiece.x+c, currentPiece.y+r, currentPiece.color);
+            }));
         }
 
         function drawBlock(x, y, color) {
-            ctx.fillStyle = color;
-            ctx.fillRect(x*tSize, y*tSize, tSize, tSize);
-            ctx.strokeStyle = "#000";
-            ctx.lineWidth = 2;
-            ctx.strokeRect(x*tSize, y*tSize, tSize, tSize);
+            ctx.fillStyle = color; ctx.fillRect(x*tSize, y*tSize, tSize, tSize);
+            ctx.strokeStyle = "#000"; ctx.lineWidth = 2; ctx.strokeRect(x*tSize, y*tSize, tSize, tSize);
         }
 
-        // ======================== PACMAN (1 HAYALET + TAKİP) ========================
+        // ======================== PACMAN ========================
         const pGrid = 20, pCols = 19;
         const pMapLayout = [
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -584,7 +562,6 @@
 
         function resetPacPositions() {
             pacman = {x: 9, y: 12, dirX:0, dirY:0, nextDirX:0, nextDirY:0};
-            // TEK HAYALET (Kırmızı)
             ghost = {x: 9, y: 8, color: 'red'};
         }
 
@@ -596,95 +573,44 @@
         }
 
         function updatePacman() {
-            // Pacman Yön Değiştirme
             let nextX = pacman.x + pacman.nextDirX;
             let nextY = pacman.y + pacman.nextDirY;
-            if(pacMap[nextY] && pacMap[nextY][nextX] !== 1) {
-                pacman.dirX = pacman.nextDirX; pacman.dirY = pacman.nextDirY;
-            }
+            if(pacMap[nextY] && pacMap[nextY][nextX] !== 1) { pacman.dirX = pacman.nextDirX; pacman.dirY = pacman.nextDirY; }
 
-            // Pacman Hareket
             let moveX = pacman.x + pacman.dirX;
             let moveY = pacman.y + pacman.dirY;
-            if(pacMap[moveY] && pacMap[moveY][moveX] !== 1) {
-                pacman.x = moveX; pacman.y = moveY;
-            }
+            if(pacMap[moveY] && pacMap[moveY][moveX] !== 1) { pacman.x = moveX; pacman.y = moveY; }
 
-            // Tünel
             if(pacman.x < 0) pacman.x = pCols-1;
             if(pacman.x >= pCols) pacman.x = 0;
 
-            // Yem
-            if(pacMap[pacman.y][pacman.x] === 0) {
-                pacMap[pacman.y][pacman.x] = 2; score+=10; updateScore(score);
-            }
+            if(pacMap[pacman.y][pacman.x] === 0) { pacMap[pacman.y][pacman.x] = 2; score+=10; updateScore(score); }
 
-            // --- HAYALET YAPAY ZEKASI (TAKİP) ---
-            // Hedef: Pacman'in konumu
-            // Basit yol bulma: Pacman'e olan mesafeyi azaltan geçerli kareye git.
-            
+            // Hayalet AI
             let possibleMoves = [{x:0, y:-1}, {x:0, y:1}, {x:-1, y:0}, {x:1, y:0}];
-            let bestMove = null;
-            let minDistance = 9999;
-
-            // O anki geçerli hamleleri bul
-            let validMoves = possibleMoves.filter(m => {
-                let gx = ghost.x + m.x;
-                let gy = ghost.y + m.y;
-                // Duvar değilse
-                return pacMap[gy] && pacMap[gy][gx] !== 1;
-            });
-
-            // En iyi hamleyi seç (Mesafeyi ölçerek)
+            let validMoves = possibleMoves.filter(m => pacMap[ghost.y+m.y] && pacMap[ghost.y+m.y][ghost.x+m.x] !== 1);
+            let bestMove = null; let minDistance = 9999;
             validMoves.forEach(m => {
-                let gx = ghost.x + m.x;
-                let gy = ghost.y + m.y;
-                // Manhattan Distance (Basit mesafe hesaplama)
-                let dist = Math.abs(gx - pacman.x) + Math.abs(gy - pacman.y);
-                
-                if (dist < minDistance) {
-                    minDistance = dist;
-                    bestMove = m;
-                }
+                let dist = Math.abs(ghost.x+m.x - pacman.x) + Math.abs(ghost.y+m.y - pacman.y);
+                if (dist < minDistance) { minDistance = dist; bestMove = m; }
             });
+            if (bestMove) { ghost.x += bestMove.x; ghost.y += bestMove.y; }
 
-            // Hareket et
-            if (bestMove) {
-                ghost.x += bestMove.x;
-                ghost.y += bestMove.y;
-            }
-
-            // Çarpışma
             if(ghost.x === pacman.x && ghost.y === pacman.y) {
                 pacmanLives--; updateScore(score);
-                if(pacmanLives<=0) showGameOver();
-                else resetPacPositions();
+                if(pacmanLives<=0) showGameOver(); else resetPacPositions();
             }
-
             drawPacman();
         }
 
         function drawPacman() {
-            let s = 30;
-            ctx.fillStyle="black"; ctx.fillRect(0,0,canvas.width,canvas.height);
-            
-            // Harita
+            let s = 30; ctx.fillStyle="black"; ctx.fillRect(0,0,canvas.width,canvas.height);
             for(let r=0; r<pacMap.length; r++) for(let c=0; c<pacMap[r].length; c++){
-                if(pacMap[r][c]===1) {
-                    ctx.strokeStyle="#1919A6"; ctx.lineWidth=2; ctx.strokeRect(c*s+5,r*s+5,s-10,s-10);
-                } else if(pacMap[r][c]===0) {
-                    ctx.fillStyle="#ffb8ae"; ctx.fillRect(c*s+13,r*s+13,4,4);
-                }
+                if(pacMap[r][c]===1) { ctx.strokeStyle="#1919A6"; ctx.lineWidth=2; ctx.strokeRect(c*s+5,r*s+5,s-10,s-10); } 
+                else if(pacMap[r][c]===0) { ctx.fillStyle="#ffb8ae"; ctx.fillRect(c*s+13,r*s+13,4,4); }
             }
-            
-            // Pacman
-            ctx.fillStyle="yellow"; ctx.beginPath();
-            ctx.arc(pacman.x*s+s/2, pacman.y*s+s/2, s/2-2, 0.2*Math.PI, 1.8*Math.PI);
-            ctx.lineTo(pacman.x*s+s/2, pacman.y*s+s/2); ctx.fill();
-
-            // Hayalet (Kırmızı)
-            ctx.fillStyle=ghost.color; ctx.beginPath();
-            ctx.arc(ghost.x*s+s/2, ghost.y*s+s/2, s/2-4, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle="yellow"; ctx.beginPath(); ctx.arc(pacman.x*s+s/2, pacman.y*s+s/2, s/2-2, 0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(pacman.x*s+s/2, pacman.y*s+s/2); ctx.fill();
+            ctx.fillStyle=ghost.color; ctx.beginPath(); ctx.arc(ghost.x*s+s/2, ghost.y*s+s/2, s/2-4, 0, Math.PI*2); ctx.fill();
         }
     </script>
 </body>
