@@ -2,320 +2,559 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Emirhan Portal v2.0.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Portföy & Arcade | v1.7.0</title>
+    <!-- İkonlar -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
-
+        /* --- TEMEL AYARLAR --- */
         :root {
-            --primary-yellow: #ffcc00;
-            --bg-dark: #121212;
-            --card-bg: #1e1e1e;
-            --accent-blue: #2196F3;
+            --bg-color: #121212;
+            --panel-bg: #1e1e1e;
+            --text-color: #eee;
+            --accent-color: #ffcc00; /* Arcade Sarısı */
         }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-color); overflow-x: hidden; }
 
-        body {
-            margin: 0; background-color: var(--bg-dark); color: #fff;
-            font-family: 'Poppins', sans-serif; display: flex; flex-direction: column;
-            align-items: center; min-height: 100vh; overflow-x: hidden;
-        }
-
-        /* HEADER */
+        /* --- ÜST MENÜ --- */
         header {
-            width: 100%; padding: 15px 50px; display: flex; justify-content: space-between;
-            align-items: center; box-sizing: border-box; background: #1a1a1a;
-            border-bottom: 2px solid #333; position: sticky; top: 0; z-index: 100;
+            background-color: var(--panel-bg); padding: 15px 30px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #333;
         }
+        nav ul { list-style: none; display: flex; gap: 20px; padding: 0; margin: 0; }
+        nav a { text-decoration: none; color: #aaa; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        nav a:hover, nav a.active { color: var(--accent-color); }
 
-        .logo { font-size: 22px; font-weight: 800; color: var(--primary-yellow); cursor: pointer; }
-
-        .nav-links { display: flex; gap: 20px; }
-        .nav-links span { cursor: pointer; color: #aaa; transition: 0.3s; font-size: 14px; }
-        .nav-links span:hover, .nav-links span.active { color: var(--primary-yellow); }
-
-        /* DÖNEN RENKLİ SÜRÜM ÇERÇEVESİ */
-        .version-wrapper {
-            position: relative; padding: 3px; border-radius: 20px; overflow: hidden; cursor: pointer;
+        /* --- SÜRÜM KUTUSU (DÖNEN RENKLİ ÇERÇEVE) v1.7.0 --- */
+        #version-wrapper {
+            position: relative;
+            padding: 3px; /* Çerçeve kalınlığı */
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
         }
-        .version-wrapper::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: conic-gradient(#ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #8f00ff, #ff0000);
-            animation: rotateBorder 3s linear infinite;
+        /* Dönen Renkli Arkaplan */
+        #version-wrapper::before {
+            content: ''; position: absolute; width: 200%; height: 200%;
+            background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+            animation: spin 3s linear infinite;
         }
-        @keyframes rotateBorder { 100% { transform: rotate(360deg); } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .version-badge {
-            position: relative; background: #000; padding: 4px 12px; border-radius: 18px;
-            font-size: 11px; font-weight: bold; color: #fff; display: flex; align-items: center; gap: 5px;
+        /* İçerik (Siyah Kutu) */
+        #version-content {
+            position: relative; background-color: #000; color: white;
+            padding: 5px 12px; border-radius: 18px; z-index: 2;
+            display: flex; gap: 8px; align-items: center; font-weight: bold; font-size: 0.9rem;
         }
+        .info-btn { background: #fff; color: #000; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-weight: bold; }
 
-        /* EKRANLAR */
-        .screen { display: none; width: 100%; max-width: 1100px; padding: 40px 20px; animation: fadeIn 0.4s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* --- İÇERİK BÖLÜMLERİ --- */
+        .container { max-width: 1000px; margin: 40px auto; padding: 20px; display: none; text-align: center; }
+        .section.active { display: block; animation: fadeEffect 0.5s; }
+        @keyframes fadeEffect { from {opacity: 0;} to {opacity: 1;} }
 
-        /* ANA SAYFA */
-        #home-screen { flex-direction: column; align-items: center; text-align: center; }
-        .hero-title { font-size: 50px; margin: 0; color: var(--primary-yellow); }
+        /* --- OYUN MENÜSÜ --- */
+        .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .game-card { background: var(--panel-bg); padding: 20px; border-radius: 10px; cursor: pointer; transition: 0.3s; border: 2px solid #333; }
+        .game-card:hover { border-color: var(--accent-color); transform: translateY(-5px); }
+        .game-card i { font-size: 3rem; margin-bottom: 10px; color: var(--accent-color); }
 
-        /* DERS NOTLARI (AKORDİYON) */
-        .notes-list { width: 100%; max-width: 800px; margin: 0 auto; }
-        .note-item { background: var(--card-bg); margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #333; }
-        .note-btn { width: 100%; padding: 15px; background: none; border: none; color: white; text-align: left; 
-                    font-size: 18px; cursor: pointer; display: flex; justify-content: space-between; }
-        .note-btn:hover { background: #252525; }
-        .note-content { max-height: 0; overflow: hidden; transition: 0.3s ease-out; background: #151515; padding: 0 15px; }
-        .note-content.open { max-height: 400px; padding: 15px; border-top: 1px solid #333; }
-
-        /* OYUN MENÜSÜ */
-        .games-grid { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
-        .game-card { background: var(--card-bg); border: 1px solid #333; border-radius: 12px; width: 200px; padding: 25px; 
-                     text-align: center; cursor: pointer; transition: 0.3s; }
-        .game-card:hover { border-color: var(--primary-yellow); transform: translateY(-5px); }
-
-        /* OYUN ALANI */
-        #game-container { flex-direction: column; align-items: center; position: relative; }
-        canvas { background: #000; border: 5px solid #333; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .game-header { display: flex; justify-content: space-between; width: 600px; margin-bottom: 10px; }
+        /* --- OYUN ALANI --- */
+        #game-area { display: none; margin-top: 20px; }
+        #game-canvas-container { position: relative; display: inline-block; border: 4px solid #444; box-shadow: 0 0 20px #000; }
+        canvas { background: #000; display: block; }
         
-        /* OYUN BİTTİ EKRANI */
-        #game-over-ui {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9); padding: 40px; border-radius: 15px; border: 2px solid red;
-            text-align: center; display: none; z-index: 10;
-        }
+        /* Skor ve Can Bilgisi */
+        .game-hud { display: flex; justify-content: space-between; width: 400px; margin: 0 auto 10px auto; font-size: 1.2rem; font-weight: bold; color: var(--accent-color); }
+        
+        /* Butonlar */
+        .control-btn { margin-top: 15px; padding: 10px 20px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; }
+        .back-btn { background: #3498db; margin-right: 10px; }
 
-        /* MODAL */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: #1a1a1a; padding: 25px; border-radius: 12px; width: 400px; border: 1px solid #444; }
+        /* --- MODAL (GÜNLÜK) --- */
+        #logModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: #222; padding: 25px; border-radius: 10px; width: 80%; max-width: 500px; text-align: left; position: relative; }
+        .close-modal { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; cursor: pointer; color: #aaa; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; color: #ccc; }
+        th, td { border: 1px solid #444; padding: 8px; }
+        th { background: #111; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo" onclick="showScreen('home')">EMİRHAN PORTAL</div>
-        <div class="nav-links">
-            <span id="nav-home" class="active" onclick="showScreen('home')">Anasayfa</span>
-            <span id="nav-menu" onclick="showScreen('menu')">Oyunlar</span>
-            <span id="nav-notes" onclick="showScreen('notes')">Ders Notları</span>
+        <div style="font-size:1.5rem; font-weight:bold; color:var(--accent-color);">
+            <i class="fas fa-gamepad"></i> OYUN PORTALI
         </div>
-        <div class="version-wrapper" onclick="openModal()">
-            <div class="version-badge">v2.0.0 [SON SÜRÜM] ℹ</div>
+        <nav>
+            <a onclick="showSection('home')" class="active" id="nav-home">Anasayfa</a>
+            <a onclick="showSection('games')" id="nav-games">Oyunlar</a>
+            <a onclick="showSection('notes')" id="nav-notes">Ders Notları</a>
+            <a onclick="showSection('movies')" id="nav-movies">Filmler</a>
+        </nav>
+        
+        <!-- v1.7.0 Dönen Çerçeve -->
+        <div id="version-wrapper">
+            <div id="version-content">
+                <span>v1.7.0</span>
+                <button class="info-btn" onclick="document.getElementById('logModal').style.display='flex'">i</button>
+            </div>
         </div>
     </header>
 
-    <!-- ANA SAYFA -->
-    <div id="home-screen" class="screen" style="display: flex;">
-        <h1 class="hero-title">Hoş Geldin Emirhan!</h1>
-        <p style="color:#888;">Bu portal hem eğlenmen hem de öğrenmen için tasarlandı.</p>
-        <button onclick="showScreen('menu')" style="background:var(--primary-yellow); border:none; padding:15px 30px; border-radius:30px; font-weight:bold; cursor:pointer; margin-top:20px;">OYUNLARA GİT</button>
+    <!-- BÖLÜMLER -->
+    <div id="home" class="container section active">
+        <h1>Hoşgeldiniz</h1>
+        <p>Kişisel web siteme hoşgeldiniz. Oyunlar menüsünden Yılan, Tetris ve Pac-Man oynayabilirsiniz.</p>
     </div>
 
-    <!-- OYUN MENÜSÜ -->
-    <div id="menu-screen" class="screen">
-        <h2 style="text-align:center;">Oyun Seçimi</h2>
-        <div class="games-grid">
-            <div class="game-card" onclick="startGame('snake')">🐍<h3>Yılan</h3></div>
-            <div class="game-card" onclick="startGame('tetris')">🧱<h3>Tetris</h3></div>
-            <div class="game-card" onclick="startGame('pacman')">🟡<h3>Pac-Man</h3></div>
+    <div id="games" class="container section">
+        <h2>Oyun Kütüphanesi</h2>
+        <div class="games-grid" id="game-selection">
+            <div class="game-card" onclick="startGame('snake')">
+                <i class="fas fa-worm"></i>
+                <h3>Yılan Oyunu</h3>
+                <p>Duvarlara çarpma, elmaları topla!</p>
+            </div>
+            <div class="game-card" onclick="startGame('tetris')">
+                <i class="fas fa-th-large"></i>
+                <h3>Tetris</h3>
+                <p>Tam fonksiyonlu: Çevir, Kaydır, Patlat.</p>
+            </div>
+            <div class="game-card" onclick="startGame('pacman')">
+                <i class="fas fa-ghost"></i>
+                <h3>Pac-Man</h3>
+                <p>3 Can Hakkı, Arcade Labirent.</p>
+            </div>
+        </div>
+
+        <!-- OYUN SAHNESİ -->
+        <div id="game-area">
+            <div class="game-hud">
+                <span id="score-display">Skor: 0</span>
+                <span id="lives-display" style="display:none;">Can: 3</span>
+            </div>
+            <div id="game-canvas-container">
+                <canvas id="gameCanvas" width="400" height="400"></canvas>
+            </div>
+            <br>
+            <button class="control-btn back-btn" onclick="returnToGameMenu()"><i class="fas fa-arrow-left"></i> Oyun Seçimine Dön</button>
+            <button class="control-btn" onclick="resetGame()"><i class="fas fa-redo"></i> Yeniden Başlat</button>
+            <p style="color:#777; font-size:0.9rem; margin-top:10px;">Kontroller: Yön Tuşları (Tetris'te YUKARI tuşu döndürür)</p>
         </div>
     </div>
 
-    <!-- DERS NOTLARI -->
-    <div id="notes-screen" class="screen">
-        <h2 style="text-align:center;">Lise Ders Notları</h2>
-        <div class="notes-list">
-            <div class="note-item">
-                <button class="note-btn" onclick="toggleNote('m1')">Matematik <span>▼</span></button>
-                <div id="m1" class="note-content"><b>Fonksiyonlar:</b> Tanım kümesindeki her elemanın değer kümesinde yalnız bir karşılığı olmasıdır.<br><b>Logaritma:</b> Üstel fonksiyonların tersidir.</div>
-            </div>
-            <div class="note-item">
-                <button class="note-btn" onclick="toggleNote('f1')">Fizik <span>▼</span></button>
-                <div id="f1" class="note-content"><b>Dinamik:</b> F=m.a (Newton'un 2. Hareket Yasası).<br><b>Enerji:</b> Ep = m.g.h (Potansiyel Enerji).</div>
-            </div>
-            <div class="note-item">
-                <button class="note-btn" onclick="toggleNote('k1')">Kimya <span>▼</span></button>
-                <div id="k1" class="note-content"><b>Periyodik Cetvel:</b> Elementlerin atom numaralarına göre dizildiği tablodur.<br><b>Mol:</b> 6,022x10^23 tanecik.</div>
-            </div>
-        </div>
+    <div id="notes" class="container section">
+        <h2>Ders Notları</h2>
+        <p>Notion entegrasyonu buraya gelecek.</p>
     </div>
-
-    <!-- OYUN ALANI -->
-    <div id="game-container" class="screen">
-        <div class="game-header">
-            <button onclick="showScreen('menu')" style="background:#444; color:white; border:none; padding:8px 15px; cursor:pointer; border-radius:5px;">← Menüye Dön</button>
-            <div id="score-display" style="font-size:20px; font-weight:bold; color:var(--primary-yellow);">SKOR: 0</div>
-        </div>
-        <div style="position:relative;">
-            <canvas id="gameCanvas"></canvas>
-            <div id="game-over-ui">
-                <h1 style="color:red; margin:0;">OYUN BİTTİ!</h1>
-                <p id="final-score-text" style="font-size:24px;">Skor: 0</p>
-                <button onclick="restartGame()" style="background:var(--primary-yellow); border:none; padding:10px 20px; font-weight:bold; cursor:pointer; border-radius:5px;">TEKRAR DENE</button>
-            </div>
-        </div>
+    <div id="movies" class="container section">
+        <h2>Filmler</h2>
+        <p>Film listesi buraya gelecek.</p>
     </div>
 
     <!-- GÜNLÜK MODAL -->
-    <div id="changelog-modal" class="modal">
-        <div class="modal-box">
-            <h3>Sürüm Geçmişi</h3>
-            <p><b>v2.0.0:</b> Yılan duvar ölümü eklendi. Ders notları sistemi kuruldu. Işıklı çerçeve güncellendi.</p>
-            <button onclick="closeModal()" style="width:100%; padding:10px; background:red; color:white; border:none; cursor:pointer;">Kapat</button>
+    <div id="logModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="document.getElementById('logModal').style.display='none'">&times;</span>
+            <h3>Sürüm Günlüğü</h3>
+            <table>
+                <tr><th>Sürüm</th><th>Değişiklikler</th></tr>
+                <tr><td>v1.7.0</td><td>Dönen ışıklı çerçeve, Gelişmiş Tetris, 3 Canlı Pacman.</td></tr>
+                <tr><td>v1.6.0</td><td>Renk paleti güncellemeleri.</td></tr>
+            </table>
         </div>
     </div>
 
+    <!-- OYUN MOTORU JS -->
     <script>
+        // --- DEĞİŞKENLER ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const scoreDisplay = document.getElementById('score-display');
-        const gameOverUI = document.getElementById('game-over-ui');
-        const finalScoreText = document.getElementById('final-score-text');
+        let gameInterval;
+        let activeGame = null;
+        let score = 0;
+        let lives = 3;
 
-        let gameLoop, score, activeGame;
-
-        function showScreen(id) {
-            stopGame();
-            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-            document.querySelectorAll('.nav-links span').forEach(n => n.classList.remove('active'));
-            const s = document.getElementById(id + '-screen') || document.getElementById(id);
-            s.style.display = (id==='home'?'flex':'block');
-            if(id==='game-container') s.style.display = 'flex';
-            if(document.getElementById('nav-'+id)) document.getElementById('nav-'+id).classList.add('active');
+        // Navigasyon
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('nav-'+id).classList.add('active');
+            if(id !== 'games') stopGameLoop();
         }
 
-        function toggleNote(id) {
-            const content = document.getElementById(id);
-            const isOpen = content.classList.contains('open');
-            document.querySelectorAll('.note-content').forEach(c => c.classList.remove('open'));
-            if(!isOpen) content.classList.add('open');
+        function returnToGameMenu() {
+            stopGameLoop();
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('game-selection').style.display = 'grid';
+            document.getElementById('current-game-title')?.remove();
         }
 
-        function openModal() { document.getElementById('changelog-modal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('changelog-modal').style.display = 'none'; }
+        function stopGameLoop() {
+            clearInterval(gameInterval);
+            activeGame = null;
+        }
 
-        function stopGame() { clearInterval(gameLoop); gameOverUI.style.display = 'none'; document.onkeydown = null; }
+        function resetGame() {
+            if(activeGame) startGame(activeGame);
+        }
 
-        function startGame(type) {
-            showScreen('game-container');
-            activeGame = type;
+        function startGame(gameName) {
+            stopGameLoop();
+            document.getElementById('game-selection').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+            activeGame = gameName;
             score = 0;
-            scoreDisplay.innerText = "SKOR: 0";
-            if(type === 'snake') initSnake();
-            if(type === 'tetris') initTetris();
-            if(type === 'pacman') initPacman();
+            lives = 3;
+            updateHUD();
+
+            if (gameName === 'snake') initSnake();
+            if (gameName === 'tetris') initTetris();
+            if (gameName === 'pacman') initPacman();
         }
 
-        function restartGame() { startGame(activeGame); }
-
-        function gameOver() {
-            clearInterval(gameLoop);
-            finalScoreText.innerText = "Skor: " + score;
-            gameOverUI.style.display = 'block';
+        function updateHUD() {
+            document.getElementById('score-display').innerText = "Skor: " + score;
+            const livesDiv = document.getElementById('lives-display');
+            if(activeGame === 'pacman') {
+                livesDiv.style.display = 'block';
+                livesDiv.innerText = "Can: " + "❤️".repeat(lives);
+            } else {
+                livesDiv.style.display = 'none';
+            }
         }
 
-        // ======================== YILAN (SNAKE) ========================
+        // ==========================================
+        // 1. OYUN: YILAN (Gelişmiş)
+        // ==========================================
+        let snake = [], apple = {}, vel = {};
+        const gridSize = 20; const tileCount = 20;
+
         function initSnake() {
-            canvas.width = 600; canvas.height = 600;
-            let snake = [{x:10, y:10}, {x:9, y:10}];
-            let dir = {x:1, y:0};
-            let apple = {x: 15, y: 15};
+            snake = [{x:10, y:10}];
+            apple = {x:15, y:15};
+            vel = {x:0, y:0};
+            gameInterval = setInterval(snakeLoop, 100);
             
-            document.onkeydown = e => {
-                if(e.key === 'ArrowUp' && dir.y === 0) dir = {x:0, y:-1};
-                if(e.key === 'ArrowDown' && dir.y === 0) dir = {x:0, y:1};
-                if(e.key === 'ArrowLeft' && dir.x === 0) dir = {x:-1, y:0};
-                if(e.key === 'ArrowRight' && dir.x === 0) dir = {x:1, y:0};
+            // Yılan için özel tuş dinleyici
+            document.onkeydown = function(e) {
+                if(activeGame !== 'snake') return;
+                switch(e.keyCode) {
+                    case 37: if(vel.x!==1) {vel.x=-1; vel.y=0;} break; // Sol
+                    case 38: if(vel.y!==1) {vel.x=0; vel.y=-1;} break; // Yukarı
+                    case 39: if(vel.x!==-1) {vel.x=1; vel.y=0;} break; // Sağ
+                    case 40: if(vel.y!==-1) {vel.x=0; vel.y=1;} break; // Aşağı
+                }
             };
-
-            gameLoop = setInterval(() => {
-                let head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
-                
-                // DUVARA ÇARPMA KONTROLÜ (BURASI DEĞİŞTİ)
-                if(head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) return gameOver();
-                
-                // KENDİNE ÇARPMA KONTROLÜ
-                if(snake.some(s => s.x === head.x && s.y === head.y)) return gameOver();
-
-                snake.unshift(head);
-                if(head.x === apple.x && head.y === apple.y) {
-                    score += 10;
-                    scoreDisplay.innerText = "SKOR: " + score;
-                    apple = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)};
-                } else { snake.pop(); }
-
-                ctx.fillStyle = "black"; ctx.fillRect(0,0,600,600);
-                // Izgara (Opsiyonel)
-                ctx.strokeStyle = "#111";
-                for(let i=0; i<600; i+=30) { ctx.strokeRect(i, 0, 30, 600); ctx.strokeRect(0, i, 600, 30); }
-                
-                ctx.fillStyle = "red"; ctx.fillRect(apple.x*30+2, apple.y*30+2, 26, 26);
-                ctx.fillStyle = var(--primary-yellow);
-                snake.forEach((p, i) => {
-                    ctx.fillStyle = i === 0 ? "#ffcc00" : "#aa8800";
-                    ctx.fillRect(p.x*30+1, p.y*30+1, 28, 28);
-                });
-            }, 100);
         }
 
-        // ======================== TETRIS ========================
+        function snakeLoop() {
+            let head = {x: snake[0].x + vel.x, y: snake[0].y + vel.y};
+
+            // DUVARA ÇARPMA KONTROLÜ (ÖLÜM)
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+                alert("Oyun Bitti! Duvara çarptın. Skorun: " + score);
+                resetGame();
+                return;
+            }
+
+            // KENDİNE ÇARPMA KONTROLÜ
+            for(let i=0; i<snake.length; i++) {
+                if(head.x === snake[i].x && head.y === snake[i].y) {
+                    alert("Oyun Bitti! Kendini ısırdın. Skorun: " + score);
+                    resetGame();
+                    return;
+                }
+            }
+
+            snake.unshift(head);
+
+            // Elma Yeme
+            if (head.x === apple.x && head.y === apple.y) {
+                score += 10;
+                updateHUD();
+                apple = {x: Math.floor(Math.random()*tileCount), y: Math.floor(Math.random()*tileCount)};
+            } else {
+                snake.pop(); // Kuyruğu sil
+            }
+
+            // Çizim
+            ctx.fillStyle = "black";
+            ctx.fillRect(0,0,canvas.width, canvas.height);
+            
+            ctx.fillStyle = "lime";
+            for(let t of snake) ctx.fillRect(t.x*gridSize, t.y*gridSize, gridSize-2, gridSize-2);
+            
+            ctx.fillStyle = "red";
+            ctx.fillRect(apple.x*gridSize, apple.y*gridSize, gridSize-2, gridSize-2);
+        }
+
+        // ==========================================
+        // 2. OYUN: TETRIS (Tam Fonksiyonlu)
+        // ==========================================
+        const ROW = 20; const COL = 10; const SQ = 20;
+        let board = [];
+        let p; // Parça
+
+        // Tetromino Şekilleri (I, J, L, O, S, T, Z)
+        const PIECES = [
+            [Z,"red"], [S,"green"], [T,"purple"], [O,"yellow"], [L,"orange"], [I,"cyan"], [J,"blue"]
+        ];
+        function Z(){return [[1,1,0],[0,1,1],[0,0,0]];} function S(){return [[0,1,1],[1,1,0],[0,0,0]];} function T(){return [[0,1,0],[1,1,1],[0,0,0]];} function O(){return [[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]];} function L(){return [[0,0,1],[1,1,1],[0,0,0]];} function I(){return [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]];} function J(){return [[1,0,0],[1,1,1],[0,0,0]];}
+
         function initTetris() {
-            canvas.width = 300; canvas.height = 600;
-            const ROWS = 20, COLS = 10, SIZE = 30;
-            let board = Array.from({length: ROWS}, () => Array(COLS).fill(0));
-            let piece = { matrix: [[1,1,1,1]], x: 3, y: 0 };
-
-            document.onkeydown = e => {
-                if(e.key === 'ArrowLeft') { piece.x--; if(tCollide(board, piece)) piece.x++; }
-                if(e.key === 'ArrowRight') { piece.x++; if(tCollide(board, piece)) piece.x--; }
-                if(e.key === 'ArrowDown') tDrop();
-                if(e.key === 'ArrowUp') {
-                    const prev = piece.matrix;
-                    piece.matrix = piece.matrix[0].map((_, i) => piece.matrix.map(r => r[i]).reverse());
-                    if(tCollide(board, piece)) piece.matrix = prev;
-                }
-            };
-
-            function tDrop() {
-                piece.y++;
-                if(tCollide(board, piece)) {
-                    piece.y--;
-                    tLock(board, piece);
-                    piece = { matrix: [[1,1],[1,1]], x: 4, y: 0 };
-                    if(tCollide(board, piece)) gameOver();
-                }
+            // Tahtayı oluştur
+            for(let r=0; r<ROW; r++){
+                board[r] = [];
+                for(let c=0; c<COL; c++) board[r][c] = "black";
             }
+            p = randomPiece();
+            gameInterval = setInterval(drop, 500); // Düşme hızı
+            drawBoard();
 
-            gameLoop = setInterval(() => { tDrop(); tDraw(board, piece); }, 500);
-
-            function tCollide(b, p) {
-                return p.matrix.some((row, dy) => row.some((val, dx) => {
-                    let nx = p.x + dx, ny = p.y + dy;
-                    return val && (nx < 0 || nx >= COLS || ny >= ROWS || (ny >= 0 && b[ny][nx]));
-                }));
-            }
-
-            function tLock(b, p) {
-                p.matrix.forEach((row, dy) => row.forEach((val, dx) => {
-                    if(val) b[p.y + dy][p.x + dx] = 1;
-                }));
-                score += 100; scoreDisplay.innerText = "SKOR: " + score;
-            }
-
-            function tDraw(b, p) {
-                ctx.fillStyle = "black"; ctx.fillRect(0,0,300,600);
-                b.forEach((row, y) => row.forEach((v, x) => { if(v) { ctx.fillStyle="blue"; ctx.fillRect(x*SIZE, y*SIZE, SIZE-1, SIZE-1); } }));
-                p.matrix.forEach((row, dy) => row.forEach((v, dx) => { if(v) { ctx.fillStyle="cyan"; ctx.fillRect((p.x+dx)*SIZE, (p.y+dy)*SIZE, SIZE-1, SIZE-1); } }));
+            document.onkeydown = function(e){
+                if(activeGame !== 'tetris') return;
+                if(e.keyCode == 37) { p.moveLeft(); dropStart = Date.now(); }
+                else if(e.keyCode == 38) { p.rotate(); dropStart = Date.now(); }
+                else if(e.keyCode == 39) { p.moveRight(); dropStart = Date.now(); }
+                else if(e.keyCode == 40) { p.moveDown(); }
             }
         }
 
-        // ======================== PACMAN ========================
+        function randomPiece(){
+            let r = Math.floor(Math.random() * PIECES.length);
+            return new Piece(PIECES[r][0](), PIECES[r][1]); // Fonksiyonu çalıştırıp diziyi alıyoruz
+        }
+
+        function Piece(tetromino, color){
+            this.tetromino = tetromino;
+            this.color = color;
+            this.tetrominoN = 0; // Rotasyon açısı
+            this.activeTetromino = this.tetromino;
+            this.x = 3; this.y = -2;
+        }
+
+        Piece.prototype.fill = function(color){
+            for(let r=0; r<this.activeTetromino.length; r++){
+                for(let c=0; c<this.activeTetromino.length; c++){
+                    if(this.activeTetromino[r][c]){
+                        drawSquare(this.x + c, this.y + r, color);
+                    }
+                }
+            }
+        }
+
+        Piece.prototype.draw = function(){ this.fill(this.color); }
+        Piece.prototype.unDraw = function(){ this.fill("black"); }
+
+        Piece.prototype.moveDown = function(){
+            if(!this.collision(0,1,this.activeTetromino)){
+                this.unDraw(); this.y++; this.draw();
+            } else {
+                this.lock();
+                p = randomPiece();
+            }
+        }
+        Piece.prototype.moveRight = function(){
+            if(!this.collision(1,0,this.activeTetromino)){
+                this.unDraw(); this.x++; this.draw();
+            }
+        }
+        Piece.prototype.moveLeft = function(){
+            if(!this.collision(-1,0,this.activeTetromino)){
+                this.unDraw(); this.x--; this.draw();
+            }
+        }
+        Piece.prototype.rotate = function(){
+            let nextPattern = this.activeTetromino[0].map((val, index) => this.activeTetromino.map(row => row[index]).reverse());
+            if(!this.collision(0,0,nextPattern)){
+                this.unDraw();
+                this.activeTetromino = nextPattern;
+                this.draw();
+            }
+        }
+        Piece.prototype.lock = function(){
+            for(let r=0; r<this.activeTetromino.length; r++){
+                for(let c=0; c<this.activeTetromino.length; c++){
+                    if(!this.activeTetromino[r][c]) continue;
+                    if(this.y + r < 0){
+                        alert("Oyun Bitti! Skor: " + score);
+                        resetGame();
+                        return;
+                    }
+                    board[this.y+r][this.x+c] = this.color;
+                }
+            }
+            // Satır silme
+            for(let r=0; r<ROW; r++){
+                let isRowFull = true;
+                for(let c=0; c<COL; c++) if(board[r][c] == "black") isRowFull = false;
+                if(isRowFull){
+                    for(let y=r; y>1; y--) for(let c=0; c<COL; c++) board[y][c] = board[y-1][c];
+                    for(let c=0; c<COL; c++) board[0][c] = "black";
+                    score += 10;
+                    updateHUD();
+                }
+            }
+            drawBoard();
+        }
+        Piece.prototype.collision = function(x,y,piece){
+            for(let r=0; r<piece.length; r++){
+                for(let c=0; c<piece.length; c++){
+                    if(!piece[r][c]) continue;
+                    let newX = this.x + c + x;
+                    let newY = this.y + r + y;
+                    if(newX < 0 || newX >= COL || newY >= ROW) return true;
+                    if(newY < 0) continue;
+                    if(board[newY][newX] != "black") return true;
+                }
+            }
+            return false;
+        }
+
+        function drawSquare(x,y,color){
+            ctx.fillStyle = color; ctx.fillRect(x*SQ,y*SQ,SQ,SQ);
+            ctx.strokeStyle="white"; ctx.strokeRect(x*SQ,y*SQ,SQ,SQ);
+        }
+        function drawBoard(){ for(let r=0; r<ROW; r++) for(let c=0; c<COL; c++) drawSquare(c,r,board[r][c]); }
+        function drop(){ p.moveDown(); }
+
+
+        // ==========================================
+        // 3. OYUN: PAC-MAN (Arcade Haritalı ve 3 Canlı)
+        // ==========================================
+        // 1=Duvar, 0=Yem, 2=Boş, 3=Pacman, 4=Hayalet
+        const map = [
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1],
+            [1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1],
+            [1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1],
+            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+            [1,0,1,1,0,1,0,1,1,1,1,1,1,0,1,0,1,1,0,1],
+            [1,0,0,0,0,1,0,0,0,1,1,0,0,0,1,0,0,0,0,1],
+            [1,1,1,1,0,1,1,1,2,1,1,2,1,1,1,0,1,1,1,1],
+            [1,2,2,1,0,1,2,2,2,4,4,2,2,2,1,0,1,2,2,1], // Hayalet Evi (Ortada)
+            [1,1,1,1,0,1,2,1,1,2,2,1,1,2,1,0,1,1,1,1],
+            [1,0,0,0,0,0,0,1,2,2,2,2,1,0,0,0,0,0,0,1],
+            [1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1],
+            [1,0,0,1,0,0,0,0,0,0,3,0,0,0,0,0,1,0,0,1], // Pacman (3) burada
+            [1,1,0,1,0,1,0,1,1,1,1,1,1,0,1,0,1,0,1,1],
+            [1,0,0,0,0,1,0,0,0,1,1,0,0,0,1,0,0,0,0,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        ];
+        
+        // Harita Kopyası (Yemler yendikçe ana harita bozulmasın diye sıfırlamada bunu kullanacağız aslında ama basitlik için direkt map kullanıyoruz)
+        let pacInfo = {x:10, y:12, dir:4}; // x,y tile cinsi. dir: 0:sol, 1:yukarı, 2:sağ, 3:aşağı
+        let ghost = {x:9, y:8};
+        
         function initPacman() {
-            canvas.width = 400; canvas.height = 400;
-            let px = 200, py = 200, lives = 3;
-            gameLoop = setInterval(() => {
-                ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
-                ctx.fillStyle="yellow"; ctx.beginPath(); ctx.arc(px, py, 15, 0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(px,py); ctx.fill();
-                scoreDisplay.innerText = "SKOR: " + score + " | CAN: " + lives;
-            }, 100);
+            // Haritadaki yemleri sıfırlayabilirdik ama bu versiyonda devam ediyoruz.
+            gameInterval = setInterval(pacLoop, 200);
+            
+            document.onkeydown = function(e){
+                if(activeGame !== 'pacman') return;
+                if(e.keyCode==37) pacInfo.reqDir=0;
+                if(e.keyCode==38) pacInfo.reqDir=1;
+                if(e.keyCode==39) pacInfo.reqDir=2;
+                if(e.keyCode==40) pacInfo.reqDir=3;
+            }
+        }
+
+        function pacLoop() {
+            // Yön Değiştirme Kontrolü (Duvar Yoksa Dön)
+            let nextX = pacInfo.x; let nextY = pacInfo.y;
+            if(pacInfo.reqDir===0) nextX--; 
+            if(pacInfo.reqDir===1) nextY--;
+            if(pacInfo.reqDir===2) nextX++;
+            if(pacInfo.reqDir===3) nextY++;
+            
+            if(map[nextY][nextX] !== 1) {
+                pacInfo.dir = pacInfo.reqDir;
+            }
+
+            // Hareket Ettir
+            if(pacInfo.dir===0) pacInfo.x--; 
+            if(pacInfo.dir===1) pacInfo.y--;
+            if(pacInfo.dir===2) pacInfo.x++;
+            if(pacInfo.dir===3) pacInfo.y++;
+
+            // Duvara Çarpma (Geri Al)
+            if(map[pacInfo.y][pacInfo.x] === 1) {
+                 if(pacInfo.dir===0) pacInfo.x++; 
+                 if(pacInfo.dir===1) pacInfo.y++;
+                 if(pacInfo.dir===2) pacInfo.x--;
+                 if(pacInfo.dir===3) pacInfo.y--;
+            }
+
+            // Yem Yeme
+            if(map[pacInfo.y][pacInfo.x] === 0) {
+                map[pacInfo.y][pacInfo.x] = 2; // Boş yap
+                score += 10;
+                updateHUD();
+            }
+
+            // Hayalet Hareketi (Basit Takip)
+            let gX = ghost.x; let gY = ghost.y;
+            if(pacInfo.x > gX && map[gY][gX+1]!==1) ghost.x++;
+            else if(pacInfo.x < gX && map[gY][gX-1]!==1) ghost.x--;
+            else if(pacInfo.y > gY && map[gY+1][gX]!==1) ghost.y++;
+            else if(pacInfo.y < gY && map[gY-1][gX]!==1) ghost.y--;
+
+            // Çarpışma (Can Kaybı)
+            if(pacInfo.x === ghost.x && pacInfo.y === ghost.y) {
+                lives--;
+                updateHUD();
+                pacInfo.x = 10; pacInfo.y = 12; // Başlangıca dön
+                ghost.x = 9; ghost.y = 8;
+                if(lives <= 0) {
+                    alert("Oyun Bitti! Skorun: " + score);
+                    resetGame();
+                    return;
+                }
+            }
+
+            drawPacman();
+        }
+
+        function drawPacman() {
+            ctx.fillStyle = "black";
+            ctx.fillRect(0,0,400,400);
+
+            // Çizim Döngüsü
+            const T = 25; // Tile Size (400/16 = 25px)
+            
+            for(let y=0; y<16; y++) {
+                for(let x=0; x<20; x++) {
+                    if(!map[y]) continue;
+                    let val = map[y][x];
+                    
+                    if(val === 1) { // Duvar (Mavi Çizgili)
+                        ctx.strokeStyle = "blue";
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(x*T + 5, y*T + 5, T-10, T-10);
+                    } else if(val === 0) { // Yem
+                        ctx.fillStyle = "#ffb8ae"; // Soluk pembe/beyazımsı
+                        ctx.fillRect(x*T + 10, y*T + 10, 5, 5);
+                    }
+                }
+            }
+
+            // Pacman Çiz
+            ctx.beginPath();
+            ctx.arc(pacInfo.x*T + 12.5, pacInfo.y*T + 12.5, 10, 0.2 * Math.PI, 1.8 * Math.PI);
+            ctx.fillStyle = "yellow";
+            ctx.fill();
+
+            // Hayalet Çiz
+            ctx.fillStyle = "red";
+            ctx.beginPath();
+            ctx.arc(ghost.x*T + 12.5, ghost.y*T + 10, 10, Math.PI, 0);
+            ctx.lineTo(ghost.x*T + 22.5, ghost.y*T + 22);
+            ctx.lineTo(ghost.x*T + 2.5, ghost.y*T + 22);
+            ctx.fill();
         }
 
     </script>
