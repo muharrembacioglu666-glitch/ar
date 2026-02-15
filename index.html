@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Oyun Portalı v1.9.4</title>
+    <title>Oyun Portalı v1.9.5</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
 
@@ -213,7 +213,7 @@
             <span>Filmler</span>
         </div>
         <div class="version-wrapper" onclick="openChangelog()">
-            <div class="version-badge">v1.9.4 <span>ℹ</span></div>
+            <div class="version-badge">v1.9.5 <span>ℹ</span></div>
         </div>
     </header>
 
@@ -272,22 +272,16 @@
             <button class="close-modal" onclick="closeChangelog()">×</button>
             <h3 style="margin-top:0">Sürüm Geçmişi</h3>
              <div class="changelog-item">
+                <div class="version-title">v1.9.5</div>
+                <ul class="change-list">
+                    <li>Pac-Man Dengesi: Power Pellet (Özel Yem) süresi zorluk seviyesini artırmak için 8 saniyeden 4 saniyeye düşürüldü.</li>
+                </ul>
+            </div>
+             <div class="changelog-item">
                 <div class="version-title">v1.9.4</div>
                 <ul class="change-list">
                     <li>Pac-Man Yapay Zekası: 4 Hayalet (Kırmızı, Mavi, Pembe, Sarı) eklendi. Hepsinin farklı bir stratejisi ve "Beni Görürse Yakala" sistemi var.</li>
-                    <li>Power Pellet: Haritaya 8 özel yem eklendi. Yenince hayaletler 8sn boyunca kaçıyor ve yenebiliyor.</li>
-                </ul>
-            </div>
-            <div class="changelog-item">
-                <div class="version-title">v1.9.2</div>
-                <ul class="change-list">
-                    <li>Görsel İyileştirme: Logo alanındaki sürüm yazısı kaldırılarak daha temiz bir header görünümü sağlandı.</li>
-                </ul>
-            </div>
-            <div class="changelog-item">
-                <div class="version-title">v1.9.1</div>
-                <ul class="change-list">
-                    <li>Ana Sayfa Eklendi: Uygulama artık modern bir giriş ekranıyla başlıyor.</li>
+                    <li>Power Pellet: Haritaya 8 özel yem eklendi.</li>
                 </ul>
             </div>
         </div>
@@ -605,7 +599,7 @@
                 if(tile === 0) score += 10;
                 if(tile === 3) { // POWER PELLET
                     score += 50;
-                    powerModeTime = 8000; // 8 Saniye
+                    powerModeTime = 4000; // 4 Saniye (Güncellendi)
                 }
                 pacMap[pacman.y][pacman.x] = 2; // Boş yap
                 totalPellets--;
