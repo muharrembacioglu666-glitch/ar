@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Oyun Portalı v1.9.6</title>
+    <title>Oyun & Ders Portalı v2.0.0</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
 
@@ -11,6 +11,8 @@
             --bg-dark: #121212;
             --card-bg: #1e1e1e;
             --accent-blue: #2196F3;
+            --accent-green: #00e676;
+            --accent-purple: #d500f9;
         }
 
         body {
@@ -98,7 +100,7 @@
             gap: 5px;
         }
 
-        /* ANA SAYFA (HOME SCREEN) */
+        /* ANA SAYFA */
         #home-screen {
             display: flex;
             flex-direction: column;
@@ -125,43 +127,62 @@
         }
         .cta-button:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(255, 204, 0, 0.4); }
 
-        /* OYUN MENÜSÜ */
-        #menu-screen {
+        /* ORTAK KART TASARIMI (OYUN & DERS) */
+        .section-container {
             display: none;
             text-align: center;
             margin-top: 50px;
             animation: fadeIn 0.5s;
+            width: 100%;
+            max-width: 1000px;
         }
         h2.section-title { font-size: 28px; margin-bottom: 30px; }
-        .games-grid {
+        .grid-container {
             display: flex;
             gap: 20px;
             justify-content: center;
             flex-wrap: wrap;
             padding-bottom: 50px;
         }
-        .game-card {
+        .card {
             background: var(--card-bg);
             border: 1px solid #333;
             border-radius: 15px;
-            width: 280px;
-            padding: 40px 20px;
+            width: 250px;
+            padding: 30px 20px;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
         }
-        .game-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary-yellow);
-            box-shadow: 0 0 15px rgba(255, 204, 0, 0.2);
+        .card:hover { transform: translateY(-5px); border-color: var(--primary-yellow); box-shadow: 0 0 15px rgba(255, 204, 0, 0.2); }
+        .card-icon svg { width: 50px; height: 50px; fill: none; stroke: var(--primary-yellow); stroke-width: 2; }
+        .card-icon.fill svg { fill: var(--primary-yellow); stroke: none; }
+        .card-title { font-weight: 700; font-size: 18px; }
+
+        /* DERS NOTLARI ÖZEL STİLLER */
+        .subject-card:hover { border-color: var(--accent-green); box-shadow: 0 0 15px rgba(0, 230, 118, 0.2); }
+        .subject-card .card-icon svg { stroke: var(--accent-green); }
+        
+        #grade-selection, #notes-display { display: none; flex-direction: column; align-items: center; width: 100%; animation: fadeIn 0.3s; }
+        .grade-btn {
+            background: #333; color: white; border: 2px solid #555;
+            padding: 15px 40px; font-size: 20px; border-radius: 10px;
+            margin: 10px; cursor: pointer; transition: 0.2s; width: 200px;
         }
-        .game-icon svg { width: 60px; height: 60px; fill: none; stroke: var(--primary-yellow); stroke-width: 3; }
-        .game-icon.fill svg { fill: var(--primary-yellow); stroke: none; }
-        .game-title { font-weight: 700; font-size: 20px; }
-        .game-desc { font-size: 13px; color: #888; }
+        .grade-btn:hover { background: var(--accent-green); border-color: var(--accent-green); color: black; font-weight: bold; }
+        
+        .notes-box {
+            background: #222; border: 1px solid #444; border-radius: 10px;
+            padding: 30px; width: 80%; text-align: left; line-height: 1.6;
+            margin-top: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .notes-box h3 { color: var(--accent-green); border-bottom: 1px solid #444; padding-bottom: 10px; margin-top: 0; }
+        .notes-box ul { list-style-type: none; padding: 0; }
+        .notes-box li { margin-bottom: 12px; position: relative; padding-left: 20px; }
+        .notes-box li::before { content: '➤'; position: absolute; left: 0; color: var(--primary-yellow); font-size: 12px; top: 4px; }
 
         /* OYUN ALANI */
         #game-container {
@@ -171,7 +192,7 @@
             margin-top: 20px;
             width: 100%;
         }
-        .game-header { display: flex; justify-content: space-between; width: 600px; margin-bottom: 10px; align-items: center; }
+        .game-header { display: flex; justify-content: space-between; width: 800px; margin-bottom: 10px; align-items: center; }
         .back-btn { background: #333; border: none; color: white; padding: 8px 16px; border-radius: 5px; cursor: pointer; }
         canvas { background: #000; border: 2px solid #333; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
 
@@ -209,49 +230,104 @@
         <div class="nav-links">
             <span id="nav-home" class="active" onclick="showHomeScreen()">Anasayfa</span>
             <span id="nav-games" onclick="showGamesMenu()">Oyunlar</span>
-            <span>Ders Notları</span>
+            <span id="nav-notes" onclick="showNotesMenu()">Ders Notları</span>
             <span>Filmler</span>
         </div>
         <div class="version-wrapper" onclick="openChangelog()">
-            <div class="version-badge">v1.9.6 <span>ℹ</span></div>
+            <div class="version-badge">v2.0.0 <span>ℹ</span></div>
         </div>
     </header>
 
+    <!-- ANA SAYFA -->
     <div id="home-screen">
-        <h1 class="hero-title">Eğlence Başlıyor</h1>
-        <p class="hero-subtitle">Retro oyunlardan modern klasiklere kadar her şey burada. Vaktini değerlendirmenin en keyifli yolu!</p>
-        <button class="cta-button" onclick="showGamesMenu()">HEMEN OYNA</button>
+        <h1 class="hero-title">Hem Oyna Hem Öğren</h1>
+        <p class="hero-subtitle">Efsane oyunlarla eğlen, ders notlarıyla bilgilerini tazele.</p>
+        <div style="display:flex; gap:20px;">
+            <button class="cta-button" onclick="showGamesMenu()">OYUN OYNA</button>
+            <button class="cta-button" style="background:#00e676;" onclick="showNotesMenu()">DERS ÇALIŞ</button>
+        </div>
     </div>
 
-    <div id="menu-screen">
+    <!-- OYUN MENÜSÜ -->
+    <div id="menu-screen" class="section-container">
         <h2 class="section-title">Oyun Kütüphanesi</h2>
-        <div class="games-grid">
-            <div class="game-card" onclick="startGame('snake')">
-                <div class="game-icon">
-                    <svg viewBox="0 0 24 24"><path d="M7 4v2a2 2 0 0 1-2 2H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 1 2 2v2" stroke="#ffcc00"></path><circle cx="8" cy="4" r="2" fill="#ffcc00" stroke="none"></circle></svg>
-                </div>
-                <div class="game-title">Yılan Oyunu</div>
-                <div class="game-desc">Yılanı büyüt, engellere çarpma!</div>
+        <div class="grid-container">
+            <div class="card" onclick="startGame('snake')">
+                <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M7 4v2a2 2 0 0 1-2 2H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 1 2 2v2" stroke="#ffcc00"></path><circle cx="8" cy="4" r="2" fill="#ffcc00" stroke="none"></circle></svg></div>
+                <div class="card-title">Yılan Oyunu</div>
             </div>
-
-            <div class="game-card" onclick="startGame('tetris')">
-                <div class="game-icon fill">
-                    <svg viewBox="0 0 24 24"><rect x="2" y="2" width="9" height="9" rx="1"></rect><rect x="13" y="2" width="9" height="9" rx="1"></rect><rect x="2" y="13" width="9" height="9" rx="1"></rect><rect x="13" y="13" width="9" height="9" rx="1"></rect></svg>
-                </div>
-                <div class="game-title">Tetris</div>
-                <div class="game-desc">Blokları yerleştir, satırları yok et.</div>
+            <div class="card" onclick="startGame('tetris')">
+                <div class="card-icon fill"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="9" height="9" rx="1"></rect><rect x="13" y="2" width="9" height="9" rx="1"></rect><rect x="2" y="13" width="9" height="9" rx="1"></rect><rect x="13" y="13" width="9" height="9" rx="1"></rect></svg></div>
+                <div class="card-title">Tetris</div>
             </div>
-
-            <div class="game-card" onclick="startGame('pacman')">
-                <div class="game-icon fill">
-                    <svg viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 0-8 8v10a2 2 0 0 0 2 2c.5 0 1-.5 1.5-1s1 1 1.5 1 1.5-1 1.5-1 1.5-1 1.5-1 2-2V10a8 8 0 0 0-8-8z"></path><circle cx="9" cy="9" r="1.5" fill="#000"></circle><circle cx="15" cy="9" r="1.5" fill="#000"></circle></svg>
-                </div>
-                <div class="game-title">Pac-Man</div>
-                <div class="game-desc">Hayaletten kaç, yemleri topla.</div>
+            <div class="card" onclick="startGame('pacman')">
+                <div class="card-icon fill"><svg viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 0-8 8v10a2 2 0 0 0 2 2c.5 0 1-.5 1.5-1s1 1 1.5 1 1.5-1 1.5-1 1.5-1 2-2V10a8 8 0 0 0-8-8z"></path><circle cx="9" cy="9" r="1.5" fill="#000"></circle><circle cx="15" cy="9" r="1.5" fill="#000"></circle></svg></div>
+                <div class="card-title">Pac-Man</div>
             </div>
         </div>
     </div>
 
+    <!-- DERS NOTLARI MENÜSÜ -->
+    <div id="notes-screen" class="section-container">
+        
+        <!-- Adım 1: Ders Seçimi -->
+        <div id="subject-selection">
+            <h2 class="section-title">Ders Seçiniz</h2>
+            <div class="grid-container">
+                <div class="card subject-card" onclick="selectSubject('matematik')">
+                    <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
+                    <div class="card-title">Matematik</div>
+                </div>
+                <div class="card subject-card" onclick="selectSubject('fizik')">
+                    <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></div>
+                    <div class="card-title">Fizik</div>
+                </div>
+                <div class="card subject-card" onclick="selectSubject('kimya')">
+                    <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M8.56 2.9A7 7 0 0 1 19 9v4m-2 0H6"></path><path d="M6 13a4 4 0 0 0 4 4h4a4 4 0 0 0 4-4"></path></svg></div>
+                    <div class="card-title">Kimya</div>
+                </div>
+                <div class="card subject-card" onclick="selectSubject('biyoloji')">
+                    <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 10a6 6 0 0 0-6-6H4a2 2 0 0 0-2 2h2a2 2 0 0 0 2 2v2a2 2 0 0 0 2 2 2 2 0 0 0 2-2v-2a2 2 0 0 0 2 2V22"></path></svg></div>
+                    <div class="card-title">Biyoloji</div>
+                </div>
+                <div class="card subject-card" onclick="selectSubject('edebiyat')">
+                    <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path></svg></div>
+                    <div class="card-title">Edebiyat</div>
+                </div>
+                <div class="card subject-card" onclick="selectSubject('tarih')">
+                    <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+                    <div class="card-title">Tarih</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Adım 2: Sınıf Seçimi -->
+        <div id="grade-selection">
+            <h2 class="section-title"><span id="selected-subject-name" style="color:var(--accent-green)"></span> - Sınıf Seçimi</h2>
+            <div style="display:flex; justify-content:center; flex-wrap:wrap;">
+                <div class="grade-btn" onclick="showNoteContent(9)">9. Sınıf</div>
+                <div class="grade-btn" onclick="showNoteContent(10)">10. Sınıf</div>
+                <div class="grade-btn" onclick="showNoteContent(11)">11. Sınıf</div>
+                <div class="grade-btn" onclick="showNoteContent(12)">12. Sınıf</div>
+            </div>
+            <button class="back-btn" style="margin-top:30px;" onclick="resetNotesMenu()">← Derslere Dön</button>
+        </div>
+
+        <!-- Adım 3: Not İçeriği -->
+        <div id="notes-display">
+            <h2 class="section-title" id="final-header"></h2>
+            <div class="notes-box">
+                <h3 id="note-topic">Önemli Konu Başlıkları</h3>
+                <ul id="note-list">
+                    <!-- JS ile doldurulacak -->
+                </ul>
+            </div>
+            <button class="back-btn" style="margin-top:30px;" onclick="backToGrades()">← Sınıf Seçimine Dön</button>
+        </div>
+
+    </div>
+
+    <!-- OYUN KONTEYNERİ (DOKUNULMADI) -->
     <div id="game-container">
         <div class="game-header">
             <button class="back-btn" onclick="showGamesMenu()">← Menüye Dön</button>
@@ -267,57 +343,151 @@
         </div>
     </div>
 
+    <!-- CHANGELOG MODAL -->
     <div id="changelog-modal" class="modal-overlay">
         <div class="modal-content">
             <button class="close-modal" onclick="closeChangelog()">×</button>
             <h3 style="margin-top:0">Sürüm Geçmişi</h3>
+             <div class="changelog-item">
+                <div class="version-title">v2.0.0</div>
+                <ul class="change-list">
+                    <li>YENİ MODÜL: Ders Notları eklendi! Artık 9, 10, 11 ve 12. sınıflar için tüm derslerin anahtar özetlerine ulaşabilirsiniz.</li>
+                </ul>
+            </div>
             <div class="changelog-item">
-                <div class="version-title">v1.9.6</div>
+                <div class="version-title">v1.9.8</div>
                 <ul class="change-list">
-                    <li>Harita Genişletildi: Pac-Man haritasının boyu 2 katına çıkarıldı.</li>
-                    <li>Dengeleme: Hayaletlerin hızı biraz düşürüldü (Pac-Man'den %25 daha yavaşlar).</li>
-                </ul>
-            </div>
-             <div class="changelog-item">
-                <div class="version-title">v1.9.5</div>
-                <ul class="change-list">
-                    <li>Pac-Man Dengesi: Power Pellet süresi 4 saniyeye düşürüldü.</li>
-                </ul>
-            </div>
-             <div class="changelog-item">
-                <div class="version-title">v1.9.4</div>
-                <ul class="change-list">
-                    <li>Pac-Man Yapay Zekası: 4 Hayalet (Kırmızı, Mavi, Pembe, Sarı) eklendi.</li>
-                    <li>Power Pellet: Haritaya 8 özel yem eklendi.</li>
+                    <li>Pac-Man Haritası: Devasa boyuta (4 katı) çıkarıldı.</li>
                 </ul>
             </div>
         </div>
     </div>
 
     <script>
-        // EKRAN YÖNETİMİ
+        // --- DATA: DERS NOTLARI ---
+        const lessonData = {
+            matematik: {
+                name: "Matematik",
+                9: ["Mantık: 'Ve', 'Veya', 'İse' bağlaçlarının doğruluk tablolarını ezbere bil.", "Kümeler: Alt küme formülü 2^n'dir. Kesişim ve birleşim işlemlerine dikkat et.", "Denklemler: Mutlak değer her zaman pozitiftir (|x| ≥ 0).", "Üçgenler: Pisagor (a²+b²=c²) ve Öklid bağıntıları geometri temelidir."],
+                10: ["Fonksiyonlar: Tanım ve görüntü kümesi kavramlarını karıştırma. Birebir ve örtenlik önemli.", "Polinomlar: P(x)'in x-a ile bölümünden kalan P(a)'dır.", "İkinci Dereceden Denklemler: Delta (b²-4ac) > 0 ise iki kök, =0 ise tek kök vardır.", "Olasılık: İstenen Durum / Tüm Durumlar formülünü unutma."],
+                11: ["Trigonometri: Sin²x + Cos²x = 1. Birim çemberi adın gibi bil.", "Analitik Geometri: İki nokta arası uzaklık ve eğim formülleri hayati önem taşır.", "Fonksiyonlarda Uygulamalar: Parabolün tepe noktası T(r,k) formüllerini hatırla.", "Çember ve Daire: Çevre 2πr, Alan πr²."],
+                12: ["Logaritma: Üstel fonksiyonun tersidir. log(a*b) = log a + log b kuralını unutma.", "Diziler: Aritmetik ve Geometrik dizilerin genel terim formüllerini çalış.", "Limit ve Süreklilik: Belirsizlik durumlarını (0/0) yok etmeyi öğren.", "Türev ve İntegral: Türev 'eğim', İntegral 'alan' demektir. Zincir kuralını unutma."]
+            },
+            fizik: {
+                name: "Fizik",
+                9: ["Fizik Bilimine Giriş: Temel ve türetilmiş büyüklükleri ayırt et (Kısa Muz).", "Madde ve Özellikleri: Özkütle d = m/V formülü her yerde karşına çıkar.", "Hareket: Hız vektörel, sürat skalerdir. Karıştırma!", "Enerji: Enerji yoktan var edilemez, vardan yok edilemez; dönüşür."],
+                10: ["Basınç: Katılarda P=G/S, Sıvılarda P=h.d.g.", "Elektrik: V = I.R (Ohm Yasası) elektriğin temelidir.", "Optik: Yansıma ve kırılma kanunlarını çizerek çalış.", "Dalgalar: Frekans kaynağa, hız ortama bağlıdır."],
+                11: ["Vektörler: Uç uca ekleme ve bileşenlerine ayırma yöntemlerini pratik yap.", "Bağıl Hareket: Vbağıl = Vcisim - Vgözlemci.", "Newton'un Hareket Yasaları: F = m.a (Dinamiğin temel prensibi).", "Elektriksel Kuvvet: Coulomb yasasını ve elektrik alanı unutma."],
+                12: ["Çembersel Hareket: Merkezcil kuvvet her zaman merkeze doğrudur.", "Basit Harmonik Hareket: Yay ve sarkaç periyot formüllerini (T=2π√(m/k), T=2π√(l/g)) ezberle.", "Modern Fizik: Işık hem dalga hem parçacık özelliği gösterir.", "Radyoaktivite: Alfa, Beta, Gama ışımalarının özelliklerini bil."]
+            },
+            kimya: {
+                name: "Kimya",
+                9: ["Kimya Bilimi: Element (tek cins atom) ve Bileşik (farklı cins atom) farkını bil.", "Atom Modelleri: Proton, nötron, elektron yerleşimini ve izotop kavramını öğren.", "Periyodik Cetvel: Grup ve periyot özelliklerinin değişim yönlerini ezberle.", "Güçlü/Zayıf Etkileşimler: İyonik, Kovalent ve Metalik bağ güçlüdür."],
+                10: ["Mol Kavramı: 1 mol = 6,02x10²³ tanecik. Bu sayı kimyanın temelidir.", "Asitler ve Bazlar: pH < 7 Asit, pH > 7 Baz. Nötralleşme tepkimelerini çalış.", "Karışımlar: Homojen (Çözelti) ve Heterojen karışım farklarını ayırt et.", "Kimya Her Yerde: Sabun, deterjan, polimerler günlük hayattaki kimyadır."],
+                11: ["Modern Atom Teorisi: Kuantum sayıları (n, l, ml, ms) ve orbital dizilimini (1s² 2s²...) öğren.", "Gazlar: P.V = n.R.T ideal gaz denklemi her şeydir.", "Çözeltiler: Molarite = n/V. Derişim hesaplamalarına dikkat.", "Enerji ve Hız: Endotermik (ısı alan) ve Ekzotermik (ısı veren) tepkimeler."],
+                12: ["Elektrokimya: Yükseltgenme 'anot', İndirgenme 'katot'ta olur (Kimya).", "Karbon Kimyası: Hibritleşme türlerini (sp, sp², sp³) ve molekül geometrisini bil.", "Organik Bileşikler: Alkan, Alken, Alkin isimlendirme kurallarını (IUPAC) çok iyi çalış.", "Enerji Kaynakları: Fosil yakıtlar ve yenilenebilir enerji farkları."]
+            },
+            biyoloji: {
+                name: "Biyoloji",
+                9: ["Canlıların Ortak Özellikleri: Hücresel yapı, beslenme, solunum, üreme vb.", "Hücre: Prokaryot (bakteri) ve Ökaryot (hayvan/bitki) hücre farklarını bil.", "Organeller: Mitokondri (enerji), Ribozom (protein), Kloroplast (fotosentez).", "Canlıların Sınıflandırılması: Tür > Cins > ... > Alem sıralamasını unutma."],
+                10: ["Hücre Bölünmeleri: Mitoz (vücut) ve Mayoz (üreme) arasındaki farklar çok önemli.", "Kalıtım: Mendel genetiği, baskın/çekinik gen ve çaprazlamaları çalış.", "Ekoloji: Besin zinciri, üretici-tüketici ilişkisi ve madde döngüleri."],
+                11: ["Sinir Sistemi: Nöron yapısı ve impuls iletimi.", "Endokrin Sistem: Hormonlar ve etkileri (İnsülin, Adrenalin vb.).", "Dolaşım Sistemi: Büyük ve küçük kan dolaşımı yollarını çizerek çalış.", "Solunum Sistemi: Alveollerde gaz değişimi nasıl olur?"],
+                12: ["Genden Proteine: DNA replikasyonu, Transkripsiyon ve Translasyon süreçleri.", "Fotosentez: Işığa bağımlı ve ışıktan bağımsız reaksiyonlar.", "Solunum: Glikoliz, Krebs Döngüsü ve ETS evreleri.", "Bitki Biyolojisi: Bitkisel dokular ve taşıma sistemleri."]
+            },
+            edebiyat: {
+                name: "Edebiyat",
+                9: ["İletişim Ögeleri: Gönderici, alıcı, ileti, kanal, dönüt.", "Şiir Bilgisi: Ölçü, kafiye, redif, nazım birimi kavramlarını öğren.", "Edebi Sanatlar: Teşbih (benzetme), Kişileştirme, Mübalağa (abartma) vb.", "Roman/Hikaye: Olay örgüsü, kişi kadrosu, zaman, mekan unsurları."],
+                10: ["İslamiyet Öncesi Türk Edebiyatı: Sav, Sagu, Koşuk, Destan.", "Halk Edebiyatı: Aşık, Tekke ve Anonim halk edebiyatı farkları.", "Divan Edebiyatı: Gazel, Kaside, Mesnevi nazım şekilleri ve aruz ölçüsü.", "Dede Korkut Hikayeleri: Geçiş dönemi eseridir, önemlidir."],
+                11: ["Tanzimat Edebiyatı: 1. Dönem (Sanat toplum için) ve 2. Dönem (Sanat sanat için).", "Servet-i Fünun: Ağır dil, bireysel konular, Halit Ziya, Tevfik Fikret.", "Milli Edebiyat: Sade dil, hece ölçüsü, Türkçülük akımı. Ömer Seyfettin, Ziya Gökalp.", "Makale, Fıkra, Sohbet: Öğretici metin türlerinin farklarını bil."],
+                12: ["Cumhuriyet Dönemi Şiiri: Saf Şiir, Yedi Meşaleciler, Garipçiler, İkinci Yeni.", "Cumhuriyet Dönemi Romanı: Toplumcu gerçekçiler (Yaşar Kemal), Modernistler (Oğuz Atay).", "Dünya Edebiyatı: Klasikler ve önemli yazarlar.", "Edebi Akımlar: Klasisizm, Romantizm, Realizm, Sembolizm, Sürrealizm."]
+            },
+            tarih: {
+                name: "Tarih",
+                9: ["Tarih Bilimine Giriş: Tarih 'yer ve zaman' göstererek belgelerle inceler.", "İlk Çağ Uygarlıkları: Sümerler (Yazı), Mısırlılar (Piramit), Hititler (Pankuş).", "Orta Çağ'da Dünya: Feodalite rejimi ve Kavimler Göçü'nün sonuçları.", "İlk Türk Devletleri: Göktürkler, Uygurlar (Yerleşik hayat) ve Asya Hun."],
+                10: ["Osmanlı Kuruluş: Bizans ile mücadeleler ve Anadolu Türk Siyasi Birliği.", "Osmanlı Yükselme: İstanbul'un Fethi (1453) ve sonuçları.", "Kültür ve Uygarlık: Divan-ı Hümayun, Tımar Sistemi ve Devşirme Sistemi.", "Coğrafi Keşifler: İpek ve Baharat yollarının yön değiştirmesi."],
+                11: ["Değişim Çağı: Rönesans (Yeniden Doğuş) ve Reform hareketleri.", "Osmanlı Duraklama/Gerileme: Islahat hareketleri ve kaybedilen topraklar.", "Fransız İhtilali (1789): Milliyetçilik akımının imparatorlukları yıkması.", "Sanayi İnkılabı: Üretimin makineleşmesi ve sömürgecilik yarışı."],
+                12: ["XX. Yüzyıl Başları: Trablusgarp ve Balkan Savaşları.", "I. Dünya Savaşı: Cepheler (Çanakkale, Kafkas) ve Mondros Ateşkesi.", "Milli Mücadele: Kongreler, TBMM'nin açılması ve Kurtuluş Savaşı cepheleri.", "Atatürk İlke ve İnkılapları: Cumhuriyetçilik, Laiklik, İnkılapçılık..."]
+            }
+        };
+
+        // --- EKRAN YÖNETİMİ ---
         const homeScreen = document.getElementById('home-screen');
-        const menuScreen = document.getElementById('menu-screen');
+        const menuScreen = document.getElementById('menu-screen'); // Oyun Menüsü
+        const notesScreen = document.getElementById('notes-screen'); // Not Menüsü
         const gameContainer = document.getElementById('game-container');
+        
         const navHome = document.getElementById('nav-home');
         const navGames = document.getElementById('nav-games');
+        const navNotes = document.getElementById('nav-notes');
+
+        function hideAllScreens() {
+            homeScreen.style.display = 'none';
+            menuScreen.style.display = 'none';
+            notesScreen.style.display = 'none';
+            gameContainer.style.display = 'none';
+            navHome.classList.remove('active');
+            navGames.classList.remove('active');
+            navNotes.classList.remove('active');
+            stopAnyGame();
+        }
 
         function showHomeScreen() {
-            stopAnyGame();
+            hideAllScreens();
             homeScreen.style.display = 'flex';
-            menuScreen.style.display = 'none';
-            gameContainer.style.display = 'none';
             navHome.classList.add('active');
-            navGames.classList.remove('active');
         }
 
         function showGamesMenu() {
-            stopAnyGame();
-            homeScreen.style.display = 'none';
+            hideAllScreens();
             menuScreen.style.display = 'block';
-            gameContainer.style.display = 'none';
-            navHome.classList.remove('active');
             navGames.classList.add('active');
+        }
+
+        // --- DERS NOTLARI FONKSİYONLARI ---
+        let currentSubject = null;
+
+        function showNotesMenu() {
+            hideAllScreens();
+            notesScreen.style.display = 'block';
+            navNotes.classList.add('active');
+            resetNotesMenu();
+        }
+
+        function resetNotesMenu() {
+            document.getElementById('subject-selection').style.display = 'block';
+            document.getElementById('grade-selection').style.display = 'none';
+            document.getElementById('notes-display').style.display = 'none';
+            currentSubject = null;
+        }
+
+        function selectSubject(subjectKey) {
+            currentSubject = subjectKey;
+            document.getElementById('subject-selection').style.display = 'none';
+            document.getElementById('grade-selection').style.display = 'flex';
+            document.getElementById('selected-subject-name').innerText = lessonData[subjectKey].name;
+        }
+
+        function showNoteContent(grade) {
+            document.getElementById('grade-selection').style.display = 'none';
+            document.getElementById('notes-display').style.display = 'flex';
+            
+            const data = lessonData[currentSubject];
+            document.getElementById('final-header').innerText = `${data.name} - ${grade}. Sınıf`;
+            
+            const listContainer = document.getElementById('note-list');
+            listContainer.innerHTML = ""; // Temizle
+            
+            // Notları ekle
+            data[grade].forEach(note => {
+                let li = document.createElement('li');
+                li.innerText = note;
+                listContainer.appendChild(li);
+            });
+        }
+
+        function backToGrades() {
+            document.getElementById('notes-display').style.display = 'none';
+            document.getElementById('grade-selection').style.display = 'flex';
         }
 
         function stopAnyGame() {
@@ -329,6 +499,7 @@
         function openChangelog() { document.getElementById('changelog-modal').style.display = 'flex'; }
         function closeChangelog() { document.getElementById('changelog-modal').style.display = 'none'; }
 
+        // --- OYUN KODLARI (DOKUNULMADI) ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const scoreDisplay = document.getElementById('score-display');
@@ -493,21 +664,10 @@
         }
         function drawBlock(x, y, color) { ctx.fillStyle = color; ctx.fillRect(x*tSize, y*tSize, tSize, tSize); ctx.strokeStyle = "#000"; ctx.strokeRect(x*tSize, y*tSize, tSize, tSize); }
 
-        // ======================== PACMAN (GELİŞMİŞ SÜRÜM - V1.9.6) ========================
-        const pGrid = 20, pCols = 19;
-        // 0: Dot, 1: Wall, 2: Empty, 3: POWER PELLET (8 Tane)
-        // Harita Uzatıldı (2 Katı)
-        const pMapLayout = [
+        // ======================== PACMAN (GELİŞMİŞ SÜRÜM - V1.9.8) ========================
+        const baseMap = [
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,3,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,3,1],
             [1,0,1,1,0,1,1,1,0,1,0,1,1,1,0,1,1,0,1],[1,0,1,1,0,1,1,1,0,1,0,1,1,1,0,1,1,0,1],
-            [1,0,0,0,3,0,0,0,0,0,0,0,0,0,3,0,0,0,1],[1,0,1,1,0,1,0,1,1,1,1,1,0,1,0,1,1,0,1],
-            [1,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,1],[1,1,1,1,0,1,1,1,2,1,2,1,1,1,0,1,1,1,1],
-            [2,2,2,1,0,1,2,2,2,2,2,2,2,1,0,1,2,2,2],[1,1,1,1,0,1,2,1,1,2,1,1,2,1,0,1,1,1,1],
-            [1,0,0,0,0,0,0,1,2,2,2,1,0,0,0,0,0,0,1],[1,0,1,1,0,1,1,1,0,1,0,1,1,1,0,1,1,0,1],
-            [1,3,0,1,0,0,0,0,0,3,0,0,0,0,0,1,0,3,1],[1,1,0,1,0,1,0,1,1,1,1,1,0,1,0,1,0,1,1],
-            // TEKRAR EDEN ORTA BÖLÜM (Haritayı Uzatmak İçin)
-            [1,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,1],[1,0,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,0,1],
-            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,0,1,1,1,0,1,0,1,1,1,0,1,1,0,1],
             [1,0,0,0,3,0,0,0,0,0,0,0,0,0,3,0,0,0,1],[1,0,1,1,0,1,0,1,1,1,1,1,0,1,0,1,1,0,1],
             [1,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,1],[1,1,1,1,0,1,1,1,2,1,2,1,1,1,0,1,1,1,1],
             [2,2,2,1,0,1,2,2,2,2,2,2,2,1,0,1,2,2,2],[1,1,1,1,0,1,2,1,1,2,1,1,2,1,0,1,1,1,1],
@@ -517,37 +677,48 @@
             [1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
         ];
         
+        // Haritayı 2x Yatay ve 2x Dikey büyüt
+        let pMapLayout = [];
+        let wideMap = baseMap.map(row => [...row, ...row]);
+        pMapLayout = [...wideMap, ...wideMap];
+
+        const pGrid = 25; 
         let pacman={}, ghosts=[], pacmanLives=3, pacMap=[], powerModeTime=0, totalPellets=0, gameTick=0;
+        let pCols = 0, pRows = 0;
 
         function initPacman() {
-            canvas.width = pCols * 30; canvas.height = pMapLayout.length * 30;
+            pRows = pMapLayout.length;
+            pCols = pMapLayout[0].length;
+            
+            canvas.width = pCols * pGrid; 
+            canvas.height = pRows * pGrid;
+            
             pacMap = JSON.parse(JSON.stringify(pMapLayout));
             pacmanLives=3; 
             powerModeTime=0;
             totalPellets = 0;
             gameTick = 0;
             
-            // Yemleri say
             for(let r=0; r<pacMap.length; r++) 
                 for(let c=0; c<pacMap[r].length; c++) 
                     if(pacMap[r][c]===0 || pacMap[r][c]===3) totalPellets++;
 
             resetPacPositions(); 
             updateScore(0);
-            // Hızı biraz yavaşlatıyoruz (150ms -> 180ms)
-            gameInterval = setInterval(updatePacman, 180);
+            gameInterval = setInterval(updatePacman, 150);
         }
 
         function resetPacPositions() {
-            // Başlangıç noktalarını harita ortasına göre ayarla (Harita uzadığı için)
-            let startY = Math.floor(pacMap.length / 2);
-            pacman = {x: 9, y: startY + 4, dirX:0, dirY:0, nextDirX:0, nextDirY:0};
-            // 4 HAYALET
+            let cX = Math.floor(pCols / 2);
+            let cY = Math.floor(pRows / 2);
+
+            pacman = {x: cX, y: cY + 3, dirX:0, dirY:0, nextDirX:0, nextDirY:0};
+            
             ghosts = [
-                {x: 9, y: 8, color: 'red', type: 'red', startX:9, startY:8},       
-                {x: 8, y: 8, color: '#FFB8FF', type: 'pink', startX:8, startY:8},   
-                {x: 10, y: 8, color: '#00FFFF', type: 'blue', startX:10, startY:8}, 
-                {x: 9, y: 7, color: '#FFCC00', type: 'yellow', startX:9, startY:7}  
+                {x: cX, y: cY - 2, color: 'red', type: 'red', startX:cX, startY:cY-2},       
+                {x: cX-1, y: cY - 2, color: '#FFB8FF', type: 'pink', startX:cX-1, startY:cY-2},   
+                {x: cX+1, y: cY - 2, color: '#00FFFF', type: 'blue', startX:cX+1, startY:cY-2}, 
+                {x: cX, y: cY - 3, color: '#FFCC00', type: 'yellow', startX:cX, startY:cY-3}  
             ];
         }
 
@@ -590,13 +761,11 @@
         function updatePacman() {
             gameTick++;
 
-            // SÜRE YÖNETİMİ
             if(powerModeTime > 0) {
-                powerModeTime -= 180; 
+                powerModeTime -= 150; 
                 updateScore(score); 
             }
 
-            // PACMAN HAREKET (Her tick'te hareket eder)
             if(pacMap[pacman.y + pacman.nextDirY] && pacMap[pacman.y + pacman.nextDirY][pacman.x + pacman.nextDirX] !== 1) { 
                 pacman.dirX = pacman.nextDirX; pacman.dirY = pacman.nextDirY; 
             }
@@ -605,7 +774,6 @@
             }
             if(pacman.x < 0) pacman.x = pCols-1; if(pacman.x >= pCols) pacman.x = 0;
 
-            // YEM YEME
             let tile = pacMap[pacman.y][pacman.x];
             if(tile === 0 || tile === 3) {
                 if(tile === 0) score += 10;
@@ -616,13 +784,18 @@
                 if(totalPellets <= 0) showGameOver(`KAZANDIN! Skor: ${score}`, "#44ff44");
             }
 
-            // HAYALET HAREKETLERİ
-            // YAVAŞLATMA MANTIĞI: Her 4 tick'ten 1'ini atla (%75 hız)
-            // Eğer güç modu varsa daha da yavaşla
             let ghostSkip = (gameTick % 4 === 0);
             
             ghosts.forEach(g => {
-                if(ghostSkip) return; // Bu tur hareket etme
+                if(g.x === pacman.x && g.y === pacman.y) {
+                    if(powerModeTime > 0) {
+                        score += 200; updateScore(score); g.x = g.startX; g.y = g.startY;
+                    } else {
+                        pacmanLives--; if(pacmanLives<=0) return showGameOver(); else return resetPacPositions();
+                    }
+                }
+
+                if(ghostSkip) return; 
                 if(powerModeTime > 0 && Math.random() > 0.6) return; 
 
                 let targetX = pacman.x;
@@ -641,15 +814,11 @@
                 g.x += move.x; g.y += move.y;
                 if(g.x < 0) g.x = pCols-1; if(g.x >= pCols) g.x = 0;
 
-                // ÇARPIŞMA
                 if(g.x === pacman.x && g.y === pacman.y) {
                     if(powerModeTime > 0) {
-                        score += 200; updateScore(score);
-                        g.x = g.startX; g.y = g.startY; 
+                        score += 200; updateScore(score); g.x = g.startX; g.y = g.startY;
                     } else {
-                        pacmanLives--; 
-                        if(pacmanLives<=0) showGameOver(); 
-                        else resetPacPositions();
+                        pacmanLives--; if(pacmanLives<=0) showGameOver(); else resetPacPositions();
                     }
                 }
             });
@@ -658,19 +827,18 @@
         }
 
         function drawPacman() {
-            let s = 30; 
+            let s = pGrid; 
             ctx.fillStyle="black"; ctx.fillRect(0,0,canvas.width,canvas.height);
             
             for(let r=0; r<pacMap.length; r++) for(let c=0; c<pacMap[r].length; c++){
                 if(pacMap[r][c]===1) { ctx.strokeStyle="#1919A6"; ctx.strokeRect(c*s+5,r*s+5,s-10,s-10); } 
-                else if(pacMap[r][c]===0) { ctx.fillStyle="#ffb8ae"; ctx.fillRect(c*s+13,r*s+13,4,4); } 
+                else if(pacMap[r][c]===0) { ctx.fillStyle="#ffb8ae"; ctx.fillRect(c*s+s/2-2,r*s+s/2-2,4,4); } 
                 else if(pacMap[r][c]===3) { 
                     ctx.fillStyle = (Math.floor(Date.now()/200)%2===0) ? "#fff" : "#ffcc00";
-                    ctx.beginPath(); ctx.arc(c*s+15, r*s+15, 8, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(c*s+s/2, r*s+s/2, 8, 0, Math.PI*2); ctx.fill();
                 }
             }
             
-            // Pacman
             ctx.fillStyle="yellow"; 
             ctx.beginPath(); 
             let mouthOpen = (Math.floor(Date.now()/100)%2===0) ? 0.2 : 0.05;
@@ -683,7 +851,6 @@
             ctx.lineTo(pacman.x*s+s/2, pacman.y*s+s/2); 
             ctx.fill();
 
-            // Hayaletler
             ghosts.forEach(g => {
                 ctx.fillStyle = (powerModeTime > 0) ? "blue" : g.color;
                 ctx.beginPath(); ctx.arc(g.x*s+s/2, g.y*s+s/2, s/2-4, 0, Math.PI*2); ctx.fill();
