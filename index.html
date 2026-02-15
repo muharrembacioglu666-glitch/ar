@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Oyun Portalı v1.9.2</title>
+    <title>Oyun Portalı v1.9.4</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
 
@@ -213,7 +213,7 @@
             <span>Filmler</span>
         </div>
         <div class="version-wrapper" onclick="openChangelog()">
-            <div class="version-badge">v1.9.2 <span>ℹ</span></div>
+            <div class="version-badge">v1.9.4 <span>ℹ</span></div>
         </div>
     </header>
 
@@ -244,7 +244,7 @@
 
             <div class="game-card" onclick="startGame('pacman')">
                 <div class="game-icon fill">
-                    <svg viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 0-8 8v10a2 2 0 0 0 2 2c.5 0 1-.5 1.5-1s1 1 1.5 1 1.5-1 1.5-1 1.5 1 1.5-1 1.5-1 2-2V10a8 8 0 0 0-8-8z"></path><circle cx="9" cy="9" r="1.5" fill="#000"></circle><circle cx="15" cy="9" r="1.5" fill="#000"></circle></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 0-8 8v10a2 2 0 0 0 2 2c.5 0 1-.5 1.5-1s1 1 1.5 1 1.5-1 1.5-1 1.5-1 1.5-1 2-2V10a8 8 0 0 0-8-8z"></path><circle cx="9" cy="9" r="1.5" fill="#000"></circle><circle cx="15" cy="9" r="1.5" fill="#000"></circle></svg>
                 </div>
                 <div class="game-title">Pac-Man</div>
                 <div class="game-desc">Hayaletten kaç, yemleri topla.</div>
@@ -260,7 +260,7 @@
         <div style="position: relative;">
             <canvas id="gameCanvas" width="600" height="600"></canvas>
             <div id="game-over-screen">
-                <div style="color: #ff4444; font-size: 32px; font-weight: bold; margin-bottom: 10px;">OYUN BİTTİ</div>
+                <div id="game-end-title" style="color: #ff4444; font-size: 32px; font-weight: bold; margin-bottom: 10px;">OYUN BİTTİ</div>
                 <div id="final-score" style="font-size: 24px; color: #fff;">Skor: 0</div>
                 <button class="restart-btn" onclick="restartGame()">Tekrar Oyna</button>
             </div>
@@ -271,8 +271,15 @@
         <div class="modal-content">
             <button class="close-modal" onclick="closeChangelog()">×</button>
             <h3 style="margin-top:0">Sürüm Geçmişi</h3>
+             <div class="changelog-item">
+                <div class="version-title">v1.9.4</div>
+                <ul class="change-list">
+                    <li>Pac-Man Yapay Zekası: 4 Hayalet (Kırmızı, Mavi, Pembe, Sarı) eklendi. Hepsinin farklı bir stratejisi ve "Beni Görürse Yakala" sistemi var.</li>
+                    <li>Power Pellet: Haritaya 8 özel yem eklendi. Yenince hayaletler 8sn boyunca kaçıyor ve yenebiliyor.</li>
+                </ul>
+            </div>
             <div class="changelog-item">
-                <div class="version-title">v1.9.2 (Güncel)</div>
+                <div class="version-title">v1.9.2</div>
                 <ul class="change-list">
                     <li>Görsel İyileştirme: Logo alanındaki sürüm yazısı kaldırılarak daha temiz bir header görünümü sağlandı.</li>
                 </ul>
@@ -281,8 +288,6 @@
                 <div class="version-title">v1.9.1</div>
                 <ul class="change-list">
                     <li>Ana Sayfa Eklendi: Uygulama artık modern bir giriş ekranıyla başlıyor.</li>
-                    <li>Menü Ayrımı: Oyunlara erişmek için artık "Oyunlar" menüsüne tıklanması gerekiyor.</li>
-                    <li>Gezinme Sistemi: Header üzerindeki linkler işlevsel hale getirildi.</li>
                 </ul>
             </div>
         </div>
@@ -328,6 +333,7 @@
         const scoreDisplay = document.getElementById('score-display');
         const gameOverScreen = document.getElementById('game-over-screen');
         const finalScoreText = document.getElementById('final-score');
+        const gameEndTitle = document.getElementById('game-end-title');
 
         let activeGame = null;
         let gameInterval = null;
@@ -351,10 +357,14 @@
             if(type === 'pacman') initPacman();
         }
 
-        function showGameOver(text) {
+        function showGameOver(text, titleColor) {
             clearInterval(gameInterval);
             isGameOver = true;
             finalScoreText.innerText = text || `Skor: ${score}`;
+            if(titleColor) gameEndTitle.style.color = titleColor;
+            else gameEndTitle.style.color = "#ff4444";
+            if(text && text.includes("KAZANDIN")) gameEndTitle.innerText = "TEBRİKLER!";
+            else gameEndTitle.innerText = "OYUN BİTTİ";
             gameOverScreen.style.display = 'block';
         }
 
@@ -362,7 +372,7 @@
 
         function updateScore(val) {
             score = val;
-            if(activeGame === 'pacman') scoreDisplay.innerText = `SKOR: ${score} | CAN: ${pacmanLives}`;
+            if(activeGame === 'pacman') scoreDisplay.innerText = `SKOR: ${score} | CAN: ${pacmanLives} | SÜRE: ${powerModeTime > 0 ? (powerModeTime/1000).toFixed(1) : 0}`;
             else scoreDisplay.innerText = `SKOR: ${score}`;
         }
 
@@ -482,52 +492,218 @@
         }
         function drawBlock(x, y, color) { ctx.fillStyle = color; ctx.fillRect(x*tSize, y*tSize, tSize, tSize); ctx.strokeStyle = "#000"; ctx.strokeRect(x*tSize, y*tSize, tSize, tSize); }
 
-        // ======================== PACMAN ========================
+        // ======================== PACMAN (GELİŞMİŞ SÜRÜM) ========================
         const pGrid = 20, pCols = 19;
+        // 0: Dot, 1: Wall, 2: Empty, 3: POWER PELLET (8 Tane)
         const pMapLayout = [
-            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,3,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,3,1],
             [1,0,1,1,0,1,1,1,0,1,0,1,1,1,0,1,1,0,1],[1,0,1,1,0,1,1,1,0,1,0,1,1,1,0,1,1,0,1],
-            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,0,1,0,1,1,1,1,1,0,1,0,1,1,0,1],
+            [1,0,0,0,3,0,0,0,0,0,0,0,0,0,3,0,0,0,1],[1,0,1,1,0,1,0,1,1,1,1,1,0,1,0,1,1,0,1],
             [1,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,1],[1,1,1,1,0,1,1,1,2,1,2,1,1,1,0,1,1,1,1],
             [2,2,2,1,0,1,2,2,2,2,2,2,2,1,0,1,2,2,2],[1,1,1,1,0,1,2,1,1,2,1,1,2,1,0,1,1,1,1],
             [1,0,0,0,0,0,0,1,2,2,2,1,0,0,0,0,0,0,1],[1,0,1,1,0,1,1,1,0,1,0,1,1,1,0,1,1,0,1],
-            [1,0,0,1,0,0,0,0,0,3,0,0,0,0,0,1,0,0,1],[1,1,0,1,0,1,0,1,1,1,1,1,0,1,0,1,0,1,1],
+            [1,3,0,1,0,0,0,0,0,3,0,0,0,0,0,1,0,3,1],[1,1,0,1,0,1,0,1,1,1,1,1,0,1,0,1,0,1,1],
             [1,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,1],[1,0,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,0,1],
-            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+            [1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
         ];
-        let pacman={}, ghost={}, pacmanLives=3, pacMap=[];
+        
+        let pacman={}, ghosts=[], pacmanLives=3, pacMap=[], powerModeTime=0, totalPellets=0;
+
         function initPacman() {
             canvas.width = pCols * 30; canvas.height = pMapLayout.length * 30;
             pacMap = JSON.parse(JSON.stringify(pMapLayout));
-            pacmanLives=3; resetPacPositions(); updateScore(0);
+            pacmanLives=3; 
+            powerModeTime=0;
+            totalPellets = 0;
+            
+            // Yemleri say
+            for(let r=0; r<pacMap.length; r++) 
+                for(let c=0; c<pacMap[r].length; c++) 
+                    if(pacMap[r][c]===0 || pacMap[r][c]===3) totalPellets++;
+
+            resetPacPositions(); 
+            updateScore(0);
             gameInterval = setInterval(updatePacman, 150);
         }
-        function resetPacPositions() { pacman = {x: 9, y: 12, dirX:0, dirY:0, nextDirX:0, nextDirY:0}; ghost = {x: 9, y: 8, color: 'red'}; }
+
+        function resetPacPositions() {
+            pacman = {x: 9, y: 12, dirX:0, dirY:0, nextDirX:0, nextDirY:0};
+            // 4 HAYALET
+            ghosts = [
+                {x: 9, y: 8, color: 'red', type: 'red', startX:9, startY:8},       // Blinky (Takipçi)
+                {x: 8, y: 8, color: '#FFB8FF', type: 'pink', startX:8, startY:8},   // Pinky (Rastgele)
+                {x: 10, y: 8, color: '#00FFFF', type: 'blue', startX:10, startY:8}, // Inky (Pusu)
+                {x: 9, y: 7, color: '#FFCC00', type: 'yellow', startX:9, startY:7}  // Clyde (Takipçi takipçisi)
+            ];
+        }
+
         function handlePacmanInput(e) {
             if(e.key==='ArrowUp') { pacman.nextDirX=0; pacman.nextDirY=-1; }
             if(e.key==='ArrowDown') { pacman.nextDirX=0; pacman.nextDirY=1; }
             if(e.key==='ArrowLeft') { pacman.nextDirX=-1; pacman.nextDirY=0; }
             if(e.key==='ArrowRight') { pacman.nextDirX=1; pacman.nextDirY=0; }
         }
+
+        function hasLineOfSight(g, p) {
+            // Sadece aynı satır veya sütundaysa görsün
+            if(g.x !== p.x && g.y !== p.y) return false;
+            
+            // Arada duvar var mı?
+            if(g.y === p.y) { // Yatay bakış
+                let min = Math.min(g.x, p.x), max = Math.max(g.x, p.x);
+                for(let i=min+1; i<max; i++) if(pacMap[g.y][i] === 1) return false;
+            } else { // Dikey bakış
+                let min = Math.min(g.y, p.y), max = Math.max(g.y, p.y);
+                for(let i=min+1; i<max; i++) if(pacMap[i][g.x] === 1) return false;
+            }
+            return true;
+        }
+
+        function getBestMove(g, targetX, targetY) {
+            let moves = [{x:0, y:-1}, {x:0, y:1}, {x:-1, y:0}, {x:1, y:0}];
+            // Duvara çarpma
+            moves = moves.filter(m => pacMap[g.y+m.y] && pacMap[g.y+m.y][g.x+m.x] !== 1);
+            
+            if(moves.length === 0) return {x:0, y:0};
+
+            // Güç modu varsa veya Rastgele moddaysa bazen rastgele git (Pink)
+            if((powerModeTime > 0) || (g.type === 'pink' && Math.random() < 0.3)) {
+                return moves[Math.floor(Math.random() * moves.length)];
+            }
+
+            // Hedefe en yakın hareketi seç
+            return moves.sort((a,b) => {
+                let distA = Math.abs((g.x+a.x) - targetX) + Math.abs((g.y+a.y) - targetY);
+                let distB = Math.abs((g.x+b.x) - targetX) + Math.abs((g.y+b.y) - targetY);
+                // Güç modu varsa en UZAĞA git
+                if(powerModeTime > 0) return distB - distA; 
+                return distA - distB;
+            })[0];
+        }
+
         function updatePacman() {
-            if(pacMap[pacman.y + pacman.nextDirY] && pacMap[pacman.y + pacman.nextDirY][pacman.x + pacman.nextDirX] !== 1) { pacman.dirX = pacman.nextDirX; pacman.dirY = pacman.nextDirY; }
-            if(pacMap[pacman.y + pacman.dirY] && pacMap[pacman.y + pacman.dirY][pacman.x + pacman.dirX] !== 1) { pacman.x += pacman.dirX; pacman.y += pacman.dirY; }
+            // SÜRE YÖNETİMİ
+            if(powerModeTime > 0) {
+                powerModeTime -= 150; 
+                updateScore(score); // Ekranda süreyi güncelle
+            }
+
+            // PACMAN HAREKET
+            if(pacMap[pacman.y + pacman.nextDirY] && pacMap[pacman.y + pacman.nextDirY][pacman.x + pacman.nextDirX] !== 1) { 
+                pacman.dirX = pacman.nextDirX; pacman.dirY = pacman.nextDirY; 
+            }
+            if(pacMap[pacman.y + pacman.dirY] && pacMap[pacman.y + pacman.dirY][pacman.x + pacman.dirX] !== 1) { 
+                pacman.x += pacman.dirX; pacman.y += pacman.dirY; 
+            }
+            
+            // Tünel
             if(pacman.x < 0) pacman.x = pCols-1; if(pacman.x >= pCols) pacman.x = 0;
-            if(pacMap[pacman.y][pacman.x] === 0) { pacMap[pacman.y][pacman.x] = 2; score+=10; updateScore(score); }
-            let moves = [{x:0, y:-1}, {x:0, y:1}, {x:-1, y:0}, {x:1, y:0}].filter(m => pacMap[ghost.y+m.y] && pacMap[ghost.y+m.y][ghost.x+m.x] !== 1);
-            let best = moves.sort((a,b) => (Math.abs(ghost.x+a.x-pacman.x)+Math.abs(ghost.y+a.y-pacman.y)) - (Math.abs(ghost.x+b.x-pacman.x)+Math.abs(ghost.y+b.y-pacman.y)))[0];
-            if(best) { ghost.x+=best.x; ghost.y+=best.y; }
-            if(ghost.x===pacman.x && ghost.y===pacman.y) { pacmanLives--; if(pacmanLives<=0) showGameOver(); else resetPacPositions(); }
+
+            // YEM YEME
+            let tile = pacMap[pacman.y][pacman.x];
+            if(tile === 0 || tile === 3) {
+                if(tile === 0) score += 10;
+                if(tile === 3) { // POWER PELLET
+                    score += 50;
+                    powerModeTime = 8000; // 8 Saniye
+                }
+                pacMap[pacman.y][pacman.x] = 2; // Boş yap
+                totalPellets--;
+                updateScore(score);
+                if(totalPellets <= 0) showGameOver(`KAZANDIN! Skor: ${score}`, "#44ff44");
+            }
+
+            // HAYALET HAREKETLERİ
+            ghosts.forEach(g => {
+                // Güç modundaysa hayaletler yavaşlasın (Her 2 turda 1 hareket etsin)
+                if(powerModeTime > 0 && Math.random() > 0.6) return; 
+
+                let targetX = pacman.x;
+                let targetY = pacman.y;
+
+                // GÖRÜŞ ALANI KONTROLÜ (LOS) - Duvar yoksa direkt dal
+                if(powerModeTime <= 0 && hasLineOfSight(g, pacman)) {
+                    // Hedef zaten pacman
+                } else {
+                    // GÖREV MODLARI (Eğer duvar arkasındaysa veya uzaktaysa)
+                    if(g.type === 'blue') { // Pusu: Önüne kırmaya çalışır
+                        targetX += pacman.dirX * 3;
+                        targetY += pacman.dirY * 3;
+                    } 
+                    else if(g.type === 'yellow') { // Başkasını (Kırmızıyı) takip et
+                         let redG = ghosts.find(gx => gx.type === 'red');
+                         if(redG) { targetX = redG.x; targetY = redG.y; }
+                    }
+                    else if(g.type === 'pink') { // Rastgele (getBestMove içinde hallediliyor)
+                    }
+                    // Red zaten direkt Pacman'e kilitli
+                }
+
+                let move = getBestMove(g, targetX, targetY);
+                g.x += move.x; 
+                g.y += move.y;
+                
+                // Tünel
+                if(g.x < 0) g.x = pCols-1; if(g.x >= pCols) g.x = 0;
+
+                // ÇARPIŞMA
+                if(g.x === pacman.x && g.y === pacman.y) {
+                    if(powerModeTime > 0) {
+                        // Hayaleti ye
+                        score += 200; updateScore(score);
+                        g.x = g.startX; g.y = g.startY; // Başlangıca dön
+                    } else {
+                        // Pacman ölür
+                        pacmanLives--; 
+                        if(pacmanLives<=0) showGameOver(); 
+                        else resetPacPositions();
+                    }
+                }
+            });
+
             drawPacman();
         }
+
         function drawPacman() {
-            let s = 30; ctx.fillStyle="black"; ctx.fillRect(0,0,canvas.width,canvas.height);
+            let s = 30; 
+            ctx.fillStyle="black"; ctx.fillRect(0,0,canvas.width,canvas.height);
+            
             for(let r=0; r<pacMap.length; r++) for(let c=0; c<pacMap[r].length; c++){
                 if(pacMap[r][c]===1) { ctx.strokeStyle="#1919A6"; ctx.strokeRect(c*s+5,r*s+5,s-10,s-10); } 
-                else if(pacMap[r][c]===0) { ctx.fillStyle="#ffb8ae"; ctx.fillRect(c*s+13,r*s+13,4,4); }
+                else if(pacMap[r][c]===0) { ctx.fillStyle="#ffb8ae"; ctx.fillRect(c*s+13,r*s+13,4,4); } // Normal Yem
+                else if(pacMap[r][c]===3) { // POWER PELLET (Yanıp sönme efekti)
+                    ctx.fillStyle = (Math.floor(Date.now()/200)%2===0) ? "#fff" : "#ffcc00";
+                    ctx.beginPath(); ctx.arc(c*s+15, r*s+15, 8, 0, Math.PI*2); ctx.fill();
+                }
             }
-            ctx.fillStyle="yellow"; ctx.beginPath(); ctx.arc(pacman.x*s+s/2, pacman.y*s+s/2, s/2-2, 0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(pacman.x*s+s/2, pacman.y*s+s/2); ctx.fill();
-            ctx.fillStyle=ghost.color; ctx.beginPath(); ctx.arc(ghost.x*s+s/2, ghost.y*s+s/2, s/2-4, 0, Math.PI*2); ctx.fill();
+            
+            // Pacman
+            ctx.fillStyle="yellow"; 
+            ctx.beginPath(); 
+            // Ağız hareketi (Basit)
+            let mouthOpen = (Math.floor(Date.now()/100)%2===0) ? 0.2 : 0.05;
+            let angle = 0;
+            if(pacman.dirX === -1) angle = Math.PI;
+            if(pacman.dirY === -1) angle = -Math.PI/2;
+            if(pacman.dirY === 1) angle = Math.PI/2;
+            
+            ctx.arc(pacman.x*s+s/2, pacman.y*s+s/2, s/2-2, angle + mouthOpen, angle + 2*Math.PI - mouthOpen); 
+            ctx.lineTo(pacman.x*s+s/2, pacman.y*s+s/2); 
+            ctx.fill();
+
+            // Hayaletler
+            ghosts.forEach(g => {
+                // Eğer güç modu varsa hepsi Maviye dönsün (Korkmuş)
+                ctx.fillStyle = (powerModeTime > 0) ? "blue" : g.color;
+                ctx.beginPath(); ctx.arc(g.x*s+s/2, g.y*s+s/2, s/2-4, 0, Math.PI*2); ctx.fill();
+                // Gözler
+                ctx.fillStyle="white"; 
+                ctx.beginPath(); ctx.arc(g.x*s+s/2-4, g.y*s+s/2-2, 3, 0, Math.PI*2); 
+                ctx.arc(g.x*s+s/2+4, g.y*s+s/2-2, 3, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle="black";
+                ctx.beginPath(); ctx.arc(g.x*s+s/2-4, g.y*s+s/2-2, 1, 0, Math.PI*2); 
+                ctx.arc(g.x*s+s/2+4, g.y*s+s/2-2, 1, 0, Math.PI*2); ctx.fill();
+            });
         }
     </script>
 </body>
